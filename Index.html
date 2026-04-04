@@ -1,0 +1,2335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Casa De Aurum — Unified CRM & Accounts</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<!-- Google Identity + Drive API -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js" async defer></script>
+<!-- pptxgenjs -->
+<script>
+(function(){const urls=['https://unpkg.com/pptxgenjs@3.12.0/dist/pptxgen.bundle.js','https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js'];let i=0;function t(){if(i>=urls.length){window._pptxLoadFailed=true;return;}const s=document.createElement('script');s.src=urls[i++];s.onload=()=>{window._pptxLoaded=true;};s.onerror=t;document.head.appendChild(s);}t();})();
+</script>
+<style>
+:root {
+  --gold: #C9A96E; --gold-light: #E8D5B0; --gold-dim: #7a6030; --gold-pale: #fdf6e9;
+  --dark: #1A1714; --dark2: #252220; --dark3: #302C29; --mid: #4A4440;
+  --cream: #F5F0E8; --cream2: #EDE6D8; --warm: #FAF7F2;
+  --text: #2C2825; --text-light: #7A706A; --border: #D4C9B8;
+  --green: #2D6A4F; --green-light: #D4EDDA; --red: #C0392B; --red-light: #FAD7D3;
+  --blue: #2563a8; --amber: #c9843a;
+  --radius: 6px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Outfit',sans-serif;background:var(--warm);color:var(--text);font-size:14px;min-height:100vh;}
+
+/* ── GOOGLE AUTH SCREEN ── */
+#auth-screen{position:fixed;inset:0;background:var(--dark);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;}
+#auth-screen .brand{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;letter-spacing:6px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;}
+#auth-screen .tagline{font-size:11px;letter-spacing:3px;color:var(--text-light);text-transform:uppercase;margin-bottom:48px;}
+#auth-screen .auth-box{background:var(--dark2);border:1px solid var(--dark3);border-radius:12px;padding:36px 40px;text-align:center;max-width:380px;width:90%;}
+#auth-screen .auth-title{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);margin-bottom:8px;}
+#auth-screen .auth-sub{font-size:12px;color:var(--text-light);margin-bottom:28px;line-height:1.7;}
+#auth-screen .auth-note{font-size:11px;color:var(--mid);margin-top:20px;line-height:1.6;}
+#auth-screen .auth-err{color:#e07870;font-size:12px;margin-top:12px;display:none;}
+.g-signin-btn{display:flex;align-items:center;gap:10px;background:white;color:#333;border:none;border-radius:6px;padding:11px 22px;font-size:14px;font-weight:500;cursor:pointer;margin:0 auto;transition:box-shadow 0.2s;}
+.g-signin-btn:hover{box-shadow:0 2px 10px rgba(0,0,0,0.2);}
+.g-signin-btn img{width:20px;height:20px;}
+
+/* ── SYNC STATUS BAR ── */
+#sync-bar{background:var(--dark2);border-bottom:1px solid var(--dark3);padding:4px 20px;display:flex;align-items:center;gap:10px;font-size:11px;color:var(--text-light);}
+#sync-bar .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--amber);}
+#sync-bar .sync-dot.ok{background:#5e9c6a;}
+#sync-bar .sync-dot.err{background:var(--red);}
+#sync-bar .user-badge{margin-left:auto;display:flex;align-items:center;gap:6px;cursor:pointer;padding:2px 8px;border-radius:20px;transition:background 0.15s;}
+#sync-bar .user-badge:hover{background:var(--dark3);}
+
+/* ── HEADER ── */
+.header{background:var(--dark);color:var(--cream);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:54px;border-bottom:2px solid var(--gold);position:sticky;top:0;z-index:100;}
+.header-brand{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;letter-spacing:3px;text-transform:uppercase;color:var(--gold);}
+.header-sub{font-size:10px;color:var(--text-light);letter-spacing:1px;}
+.role-badge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:0.05em;font-family:'DM Mono',monospace;}
+.role-sales{background:#c9a84c22;color:var(--gold);border:1px solid var(--gold-dim);}
+.role-accounts{background:#2563a822;color:#6aa0d0;border:1px solid #2563a855;}
+
+/* ── NAV TABS ── */
+.nav-tabs{display:flex;background:var(--dark2);border-bottom:1px solid var(--dark3);overflow-x:auto;}
+.nav-tab{padding:11px 20px;cursor:pointer;font-size:12px;letter-spacing:0.5px;text-transform:uppercase;color:var(--text-light);transition:all 0.2s;white-space:nowrap;border-bottom:2px solid transparent;display:flex;align-items:center;gap:6px;}
+.nav-tab:hover{color:var(--cream);}
+.nav-tab.active{color:var(--gold);border-bottom-color:var(--gold);background:var(--dark3);}
+.nav-tab .tab-badge{background:var(--amber);color:#000;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;font-family:'DM Mono',monospace;}
+
+/* ── LAYOUT ── */
+.main{display:flex;min-height:calc(100vh - 105px);}
+.sidebar{width:260px;min-width:260px;background:var(--dark2);border-right:1px solid var(--dark3);padding:16px 12px;overflow-y:auto;}
+.content{flex:1;padding:22px 26px;overflow-y:auto;max-width:100%;}
+
+/* ── SIDEBAR ── */
+.sidebar-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--dark3);}
+.client-search{width:100%;padding:7px 11px;background:var(--dark3);border:1px solid var(--mid);border-radius:var(--radius);color:var(--cream);font-size:12px;margin-bottom:10px;outline:none;font-family:'Outfit',sans-serif;}
+.client-search::placeholder{color:var(--text-light);}
+.client-item{padding:10px 11px;border-radius:var(--radius);cursor:pointer;margin-bottom:3px;transition:all 0.15s;border:1px solid transparent;}
+.client-item:hover{background:var(--dark3);}
+.client-item.active{background:var(--dark3);border-color:var(--gold);}
+.client-item-name{font-size:13px;color:var(--cream);font-weight:500;}
+.client-item-meta{font-size:11px;color:var(--text-light);margin-top:2px;}
+.client-item-tags{margin-top:4px;display:flex;gap:4px;flex-wrap:wrap;}
+.btn-add-client{width:100%;padding:8px;background:transparent;border:1px dashed var(--gold);color:var(--gold);border-radius:var(--radius);cursor:pointer;font-size:12px;letter-spacing:0.5px;margin-bottom:10px;transition:all 0.2s;font-family:'Outfit',sans-serif;}
+.btn-add-client:hover{background:var(--gold);color:var(--dark);}
+
+/* ── CARDS ── */
+.section-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:var(--dark);margin-bottom:4px;}
+.section-sub{font-size:12px;color:var(--text-light);margin-bottom:18px;}
+.card{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:14px;}
+.card-title{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;font-weight:600;}
+
+/* ── FORMS ── */
+.form-row{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+.form-group{flex:1;min-width:130px;}
+.form-group.full{flex:1 1 100%;}
+label{display:block;font-size:10px;letter-spacing:0.5px;color:var(--text-light);margin-bottom:4px;text-transform:uppercase;}
+input[type=text],input[type=number],input[type=date],select,textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius);font-family:'Outfit',sans-serif;font-size:13px;color:var(--text);background:var(--warm);outline:none;transition:border 0.2s;}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);}
+textarea{resize:vertical;min-height:60px;}
+
+/* ── BUTTONS ── */
+.btn{padding:8px 16px;border-radius:var(--radius);cursor:pointer;font-size:12px;letter-spacing:0.3px;font-family:'Outfit',sans-serif;transition:all 0.2s;border:1px solid transparent;display:inline-flex;align-items:center;gap:5px;}
+.btn-primary{background:var(--gold);color:var(--dark);font-weight:600;}
+.btn-primary:hover{background:#B8914A;}
+.btn-outline{background:transparent;border-color:var(--gold);color:var(--gold);}
+.btn-outline:hover{background:var(--gold);color:var(--dark);}
+.btn-danger{background:transparent;border-color:var(--red);color:var(--red);font-size:11px;padding:4px 9px;}
+.btn-danger:hover{background:var(--red);color:white;}
+.btn-sm{padding:5px 11px;font-size:11px;}
+.btn-dark{background:var(--dark);color:var(--gold);border-color:var(--dark);}
+.btn-dark:hover{background:var(--dark3);}
+.btn-green{background:var(--green);color:white;border-color:var(--green);}
+.btn-green:hover{background:#235D43;}
+.btn-blue{background:var(--blue);color:white;border-color:var(--blue);}
+.btn-blue:hover{background:#1d4e8a;}
+
+/* ── TILE GRID ── */
+.tile-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;}
+.tile-card{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:white;position:relative;}
+.tile-card img{width:100%;height:130px;object-fit:cover;display:block;}
+.tile-card-body{padding:9px 11px;}
+.tile-name{font-size:13px;font-weight:600;color:var(--text);}
+.tile-meta{font-size:11px;color:var(--text-light);margin-top:2px;}
+.tile-room-tag{display:inline-block;background:var(--cream2);color:var(--mid);font-size:10px;padding:2px 7px;border-radius:20px;margin-top:4px;}
+.no-img{width:100%;height:130px;background:var(--cream2);display:flex;align-items:center;justify-content:center;color:var(--text-light);font-size:11px;}
+.upload-drop-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--cream);}
+.upload-drop-zone:hover{border-color:var(--gold);background:var(--cream2);}
+.upload-drop-zone input{display:none;}
+
+/* ── QUOTATION TABLE ── */
+.quote-table{width:100%;border-collapse:collapse;}
+.quote-table th{background:var(--dark);color:var(--gold);padding:8px 10px;text-align:left;font-size:11px;letter-spacing:0.5px;font-weight:500;}
+.quote-table td{padding:7px 9px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.quote-table tr:hover td{background:var(--cream);}
+.quote-table input{border:none;background:transparent;width:100%;font-family:'Outfit',sans-serif;font-size:13px;padding:2px;outline:none;}
+.quote-table input:focus{background:var(--cream2);border-radius:3px;}
+.qty-toggle{display:flex;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;width:fit-content;}
+.qty-toggle button{padding:3px 8px;font-size:11px;border:none;cursor:pointer;background:var(--cream);color:var(--text);transition:all 0.15s;}
+.qty-toggle button.active{background:var(--dark);color:var(--gold);}
+.tile-thumb-sm{width:36px;height:36px;object-fit:cover;border-radius:3px;display:block;}
+.totals-section{background:var(--dark);color:var(--cream);border-radius:var(--radius);padding:14px 18px;}
+.totals-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;}
+.totals-row.grand{border-top:1px solid var(--gold);margin-top:8px;padding-top:10px;font-size:16px;color:var(--gold);font-family:'Cormorant Garamond',serif;}
+
+/* ── CHALLAN & ACCOUNTS TABLE ── */
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{background:var(--dark);color:var(--gold);padding:9px 12px;text-align:left;font-size:10px;letter-spacing:0.8px;text-transform:uppercase;font-weight:500;white-space:nowrap;}
+.data-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;}
+.data-table tr:hover td{background:var(--cream);}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table td.primary{color:var(--dark);font-weight:600;}
+.mono{font-family:'DM Mono',monospace;font-size:12px;}
+
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.stat-card{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.stat-card.gold::before{background:var(--gold);}
+.stat-card.green::before{background:var(--green);}
+.stat-card.red::before{background:var(--red);}
+.stat-card.blue::before{background:var(--blue);}
+.stat-label{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text-light);margin-bottom:6px;font-family:'DM Mono',monospace;}
+.stat-value{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--dark);}
+.stat-sub{font-size:11px;color:var(--text-light);margin-top:3px;}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:0.3px;font-family:'DM Mono',monospace;white-space:nowrap;}
+.badge-gold{background:var(--gold-pale);color:#7A5C2A;border:1px solid #e8d5b066;}
+.badge-green{background:var(--green-light);color:#155724;border:1px solid #28a74566;}
+.badge-red{background:var(--red-light);color:#7c1f18;border:1px solid #c0392b66;}
+.badge-blue{background:#dbeafe;color:#1e40af;border:1px solid #3b82f666;}
+.badge-gray{background:var(--cream2);color:var(--mid);border:1px solid var(--border);}
+.badge-amber{background:#fef3c7;color:#92400e;border:1px solid #f59e0b66;}
+.dot{width:5px;height:5px;border-radius:50%;background:currentColor;display:inline-block;}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:500;align-items:center;justify-content:center;padding:16px;}
+.modal-overlay.open{display:flex;}
+.modal{background:white;border-radius:8px;width:100%;max-width:580px;max-height:92vh;overflow-y:auto;animation:mIn 0.2s ease;}
+.modal-lg{max-width:740px;}
+.modal-xl{max-width:900px;}
+@keyframes mIn{from{opacity:0;transform:translateY(12px) scale(0.98);}to{opacity:1;transform:none;}}
+.modal-header{background:var(--dark);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;border-radius:8px 8px 0 0;}
+.modal-title{color:var(--gold);font-family:'Cormorant Garamond',serif;font-size:19px;}
+.modal-close{background:none;border:none;color:var(--cream);font-size:20px;cursor:pointer;line-height:1;padding:2px 6px;}
+.modal-body{padding:20px;}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
+
+/* ── TC SECTION ── */
+.tc-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;}
+.tc-item textarea{flex:1;min-height:36px;padding:5px 9px;}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:50px 20px;color:var(--text-light);}
+.empty-icon{font-size:38px;margin-bottom:10px;}
+.empty-title{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--text);margin-bottom:5px;}
+
+/* ── PROGRESS ── */
+.progress-bar{height:5px;background:var(--border);border-radius:3px;margin-top:6px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:3px;transition:width 0.4s;}
+.progress-fill.g{background:var(--green);}
+.progress-fill.a{background:var(--amber);}
+.progress-fill.r{background:var(--red);}
+
+/* ── TOAST ── */
+.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--dark2);border:1px solid var(--dark3);color:var(--cream);padding:11px 16px;border-radius:var(--radius);font-size:12px;display:flex;align-items:center;gap:8px;animation:tIn 0.2s ease;box-shadow:0 4px 20px rgba(0,0,0,0.4);}
+@keyframes tIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* ── CHALLAN PRINT ── */
+.challan-print-doc{font-family:'Outfit',sans-serif;background:white;color:#111;padding:28px 32px;max-width:600px;margin:0 auto;}
+.cp-brand{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:#8a6a20;letter-spacing:0.04em;}
+.cp-sub{font-size:10px;color:#888;letter-spacing:0.12em;text-transform:uppercase;}
+.cp-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #C9A96E;padding-bottom:12px;margin-bottom:14px;}
+.cp-table{width:100%;border-collapse:collapse;font-size:12px;margin:12px 0;}
+.cp-table th{background:#f8f3e8;color:#6a5020;padding:7px 10px;text-align:left;border:1px solid #e0d0a0;font-size:11px;}
+.cp-table td{padding:7px 10px;border:1px solid #e8e0c0;}
+.cp-sigs{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:36px;padding-top:14px;border-top:1px solid #e0d0a0;}
+.cp-sig-box{text-align:center;}
+.cp-sig-line{border-top:1px solid #aaa;margin-top:44px;padding-top:6px;font-size:11px;color:#777;}
+
+/* ── UTILS ── */
+.hidden{display:none!important;}
+.flex{display:flex;}.gap-8{gap:8px;}.gap-12{gap:12px;}.mt-12{margin-top:12px;}.mt-16{margin-top:16px;}
+.text-right{text-align:right;}.w-full{width:100%;}
+@media(max-width:700px){.main{flex-direction:column;}.sidebar{width:100%;min-width:unset;}.stats-row{grid-template-columns:1fr 1fr;}}
+
+/* ── ACCOUNTS ROLE VIEW ── */
+.accounts-panel .content-inner{max-width:100%;}
+
+/* ── DIVIDER LABEL ── */
+.div-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold-dim);border-bottom:1px solid var(--cream2);padding-bottom:6px;margin:16px 0 12px;font-family:'DM Mono',monospace;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     AUTH SCREEN
+════════════════════════════════════════════════════════ -->
+<div id="auth-screen">
+  <div class="brand">Casa De Aurum</div>
+  <div class="tagline">Tiles &amp; Designer Surfaces · Bhopal</div>
+  <div class="auth-box">
+    <div class="auth-title">Unified CRM &amp; Accounts</div>
+    <div class="auth-sub">
+      Sign in with the authorised Google account.<br>
+      Your data syncs live across all devices.
+    </div>
+    <button class="g-signin-btn" onclick="handleGoogleSignIn()">
+      <img src="https://www.google.com/favicon.ico" alt="G"/>
+      Sign in with Google
+    </button>
+    <div class="auth-err" id="auth-err">⚠ Access restricted to <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f59480878098978599b59298949c99db969a98">[email&#160;protected]</a></div>
+    <div class="auth-note">
+      Only <strong style="color:var(--gold-light)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6d0c181f18000f1d012d0a000c0401430e0200">[email&#160;protected]</a></strong> is authorised.<br>
+      Data is stored securely in your Google Drive.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     APP (hidden until auth)
+════════════════════════════════════════════════════════ -->
+<div id="app" class="hidden">
+
+<!-- SYNC BAR -->
+<div id="sync-bar">
+  <div class="sync-dot" id="sync-dot"></div>
+  <span id="sync-label">Connecting…</span>
+  <span id="sync-time" style="color:var(--mid)"></span>
+  <div class="user-badge" id="user-badge" onclick="confirmSignOut()">
+    <img id="user-avatar" src="" style="width:20px;height:20px;border-radius:50%;display:none;" alt=""/>
+    <span id="user-name" style="font-size:11px;"></span>
+    <span style="color:var(--mid)">· Sign out</span>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <div class="header-brand">Casa De Aurum</div>
+    <div class="header-sub">CRM &amp; Accounts · <span id="role-label">Sales</span></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span class="role-badge" id="role-badge-el">Sales</span>
+    <button class="btn btn-sm" id="role-switch-btn" style="font-size:11px;background:var(--dark2);border-color:var(--mid);color:var(--text-light);" onclick="switchRole()">Switch View</button>
+  </div>
+</div>
+
+<!-- ═══════════ SALES VIEW ═══════════ -->
+<div id="sales-view">
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="switchTab('clients')">👤 Clients &amp; Selections</div>
+    <div class="nav-tab" onclick="switchTab('quotation')">📄 Quotation</div>
+    <div class="nav-tab" onclick="switchTab('ppt')">📊 Presentation</div>
+    <div class="nav-tab" onclick="switchTab('challans-sales')">🚚 Challans <span class="tab-badge" id="pending-challan-badge">0</span></div>
+    <div class="nav-tab" onclick="switchTab('orders-sales')">📦 Orders &amp; Payments</div>
+  </div>
+
+  <div class="main">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-title">Client List</div>
+      <button class="btn-add-client" onclick="openAddClient()">+ New Client</button>
+      <input type="text" class="client-search" placeholder="Search clients…" oninput="filterClients(this.value)"/>
+      <div id="clientList"></div>
+    </div>
+
+    <!-- CONTENT AREA -->
+    <div class="content">
+
+      <!-- TAB: CLIENTS -->
+      <div id="tab-clients">
+        <div id="no-client-msg" class="empty-state">
+          <div class="empty-icon">🏠</div>
+          <div class="empty-title">Select or Add a Client</div>
+          <div style="font-size:13px;">Choose a client from the sidebar to manage their tile selections.</div>
+        </div>
+        <div id="client-detail" class="hidden">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+            <div>
+              <div class="section-title" id="detail-client-name"></div>
+              <div class="section-sub" id="detail-client-meta"></div>
+            </div>
+            <div class="flex gap-8">
+              <button class="btn btn-outline btn-sm" onclick="editClient()">Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteClient()">Delete</button>
+            </div>
+          </div>
+
+          <!-- Add Tile Selection -->
+          <div class="card">
+            <div class="card-title">Add Tile Selection</div>
+            <div class="form-row">
+              <div class="form-group"><label>Tile / Product Name</label><input type="text" id="new-tile-name" placeholder="e.g. Carrara White Matt 600×1200"/></div>
+              <div class="form-group"><label>Company / Brand</label><input type="text" id="new-tile-brand" placeholder="e.g. Kajaria, Nitco, RAK"/></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Size</label><input type="text" id="new-tile-size" placeholder="600×1200 mm"/></div>
+              <div class="form-group"><label>MRP per Box (₹)</label><input type="number" id="new-tile-mrp" placeholder="0"/></div>
+              <div class="form-group"><label>Room / Area</label>
+                <select id="new-tile-room">
+                  <option value="">-- Select --</option>
+                  <option>Master Bedroom</option><option>Master Bathroom</option><option>Guest Bathroom</option>
+                  <option>Kids Bedroom</option><option>Kids Washroom</option><option>Hall / Living Area</option>
+                  <option>Drawing Room</option><option>Kitchen</option><option>Balcony</option>
+                  <option>Exterior / Elevation</option><option>Common Area</option><option>Custom…</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row"><div class="form-group full"><label>Custom Room (if Custom selected)</label><input type="text" id="new-tile-room-custom" placeholder="e.g. Puja Room"/></div></div>
+            <div style="margin-bottom:12px;">
+              <label>Tile Image — <span style="color:var(--gold);font-weight:600;">Click · Drag &amp; Drop · Paste (Ctrl+V)</span></label>
+              <div id="img-dropzone" class="upload-drop-zone" onclick="document.getElementById('tile-img-upload').click()" ondragover="handleDDOver(event)" ondragleave="handleDDLeave(event)" ondrop="handleDDDrop(event)">
+                <div style="font-size:26px;margin-bottom:6px;">🖼️</div>
+                <div style="font-size:12px;color:var(--text-light);" id="drop-zone-hint">Click, drag a photo here, or paste from clipboard</div>
+                <div style="font-size:10px;color:var(--border);margin-top:3px;">JPG, PNG · Catalogue scan, phone photo, screenshot</div>
+                <input type="file" id="tile-img-upload" accept="image/*" onchange="previewTileImage(this)"/>
+              </div>
+              <img id="tile-img-preview" src="" style="display:none;width:100%;max-height:180px;object-fit:cover;border-radius:var(--radius);margin-top:7px;cursor:pointer;" onclick="document.getElementById('tile-img-upload').click()"/>
+            </div>
+            <div class="form-row"><div class="form-group full"><label>Notes</label><input type="text" id="new-tile-notes" placeholder="e.g. Client liked the matte finish"/></div></div>
+            <button class="btn btn-primary" onclick="addTileSelection()">+ Add to Selection</button>
+          </div>
+
+          <!-- Tile Selections -->
+          <div class="card">
+            <div class="card-title">Tile Selections <span id="tile-count-badge" class="badge badge-gold" style="margin-left:8px;">0</span></div>
+            <div id="selections-grid" class="tile-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: QUOTATION -->
+      <div id="tab-quotation" class="hidden">
+        <div id="no-client-quote" class="empty-state"><div class="empty-icon">📄</div><div class="empty-title">Select a Client First</div></div>
+        <div id="quote-content" class="hidden">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+            <div><div class="section-title">Quotation Builder</div><div class="section-sub" id="quote-client-sub">Building for: —</div></div>
+            <div class="flex gap-8">
+              <button class="btn btn-outline btn-sm" onclick="addQuoteRow()">+ Add Row</button>
+              <button class="btn btn-dark btn-sm" onclick="addFromSelection()">Import from Selection</button>
+              <button class="btn btn-green btn-sm" onclick="printQuotation()">🖨 Print / PDF</button>
+              <button class="btn btn-primary btn-sm" onclick="createOrderFromQuote()">→ Create Order</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Quote Details</div>
+            <div class="form-row">
+              <div class="form-group"><label>Brand</label><input type="text" id="q-brand" value="Casa De Aurum"/></div>
+              <div class="form-group"><label>Quote No. <span style="color:var(--text-light);font-size:9px;">(Auto)</span></label><input type="text" id="q-orderno" placeholder="QT-2025-001" style="background:var(--cream2);color:var(--mid);" readonly title="Quotation number is auto-generated"/></div>
+              <div class="form-group"><label>Date</label><input type="date" id="q-date"/></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Client Name</label><input type="text" id="q-client-name"/></div>
+              <div class="form-group"><label>Client Address / Project</label><input type="text" id="q-client-addr" placeholder="e.g. Arera Colony, Bhopal"/></div>
+              <div class="form-group"><label>Client Phone</label><input type="text" id="q-client-phone"/></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Line Items</div>
+            <div style="overflow-x:auto;">
+              <table class="quote-table" id="quote-items-table">
+                <thead><tr>
+                  <th style="width:36px;">#</th><th style="width:46px;">Img</th><th>Product Name</th><th style="width:85px;">Size</th>
+                  <th style="width:75px;">Unit</th><th style="width:65px;">Qty</th><th style="width:85px;">MRP (₹)</th>
+                  <th style="width:85px;">Our Price (₹)</th><th style="width:80px;">Amount</th><th style="width:32px;"></th>
+                </tr></thead>
+                <tbody id="quote-rows"></tbody>
+              </table>
+            </div>
+            <div style="max-width:360px;margin-left:auto;margin-top:14px;">
+              <div class="totals-section">
+                <div class="totals-row"><span>Subtotal</span><span id="q-subtotal">₹0</span></div>
+                <div class="totals-row"><span>Discount (%)</span><input type="number" id="q-extra-disc" min="0" max="100" value="0" style="width:46px;text-align:right;background:transparent;color:var(--cream);border:none;border-bottom:1px solid var(--mid);outline:none;" oninput="recalcTotals()"/></div>
+                <div class="totals-row"><span>GST (%)</span><input type="number" id="q-gst" min="0" value="18" style="width:46px;text-align:right;background:transparent;color:var(--cream);border:none;border-bottom:1px solid var(--mid);outline:none;" oninput="recalcTotals()"/></div>
+              </div>
+              <!-- Additional Charges -->
+              <div style="margin-top:12px;background:var(--dark2);border:1px solid var(--dark3);border-radius:var(--radius);padding:12px 14px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                  <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);font-weight:600;">Additional Charges</div>
+                  <button class="btn btn-sm" style="font-size:10px;background:transparent;border:1px dashed var(--gold);color:var(--gold);padding:3px 9px;" onclick="addChargeRow()">+ Add Charge</button>
+                </div>
+                <div id="q-charges-list"></div>
+              </div>
+              <div style="margin-top:10px;background:var(--dark);border-radius:var(--radius);padding:12px 14px;">
+                <div class="totals-row grand"><span>Grand Total</span><span id="q-grand">₹0</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Terms &amp; Conditions</div>
+            <div id="tc-list"></div>
+            <button class="btn btn-outline btn-sm mt-12" onclick="addTC()">+ Add Term</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: PPT -->
+      <div id="tab-ppt" class="hidden">
+        <div id="no-client-ppt" class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">Select a Client First</div></div>
+        <div id="ppt-content" class="hidden">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+            <div><div class="section-title">Presentation Preview</div><div class="section-sub" id="ppt-client-sub">Room-wise tile slides</div></div>
+            <button class="btn btn-green btn-sm" onclick="exportPPT()">⬇ Export PPT</button>
+          </div>
+          <div id="ppt-slides-preview"></div>
+        </div>
+      </div>
+
+      <!-- TAB: CHALLANS (Sales View) -->
+      <div id="tab-challans-sales" class="hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+          <div><div class="section-title">Delivery Challans</div><div class="section-sub">Manage dispatch records</div></div>
+          <button class="btn btn-primary btn-sm" onclick="openChallanModal()">+ New Challan</button>
+        </div>
+        <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
+          <div class="stat-card gold"><div class="stat-label">Total Challans</div><div class="stat-value" id="s-chl-total">0</div></div>
+          <div class="stat-card blue"><div class="stat-label">Pending Bill</div><div class="stat-value" id="s-chl-pending">0</div></div>
+          <div class="stat-card green"><div class="stat-label">Billed</div><div class="stat-value" id="s-chl-billed">0</div></div>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden;">
+          <div style="padding:12px 16px;display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--border);flex-wrap:wrap;">
+            <input type="text" id="chl-search" placeholder="Search client, challan no…" style="width:200px;" oninput="renderChallans()"/>
+            <select id="chl-filter" onchange="renderChallans()" style="width:150px;"><option value="">All Status</option><option>Pending Bill</option><option>Billed</option></select>
+          </div>
+          <div style="overflow-x:auto;"><table class="data-table" id="challan-table-sales"><tbody></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- TAB: ORDERS & PAYMENTS (Sales) -->
+      <div id="tab-orders-sales" class="hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+          <div><div class="section-title">Orders &amp; Payments</div><div class="section-sub">Track amounts received per order</div></div>
+          <button class="btn btn-primary btn-sm" onclick="openOrderModal()">+ New Order</button>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden;">
+          <div style="padding:12px 16px;border-bottom:1px solid var(--border);"><input type="text" id="ord-search" placeholder="Search client, order no…" style="width:220px;" oninput="renderOrders()"/></div>
+          <div style="overflow-x:auto;"><table class="data-table"><tbody id="order-table-body"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- TAB: PENDING QUOTATIONS (Sales) -->
+      <div id="tab-pending-quotes" class="hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+          <div><div class="section-title">⏳ Pending Quotations</div><div class="section-sub">Quotations not yet converted to orders — follow up needed</div></div>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden;">
+          <div style="padding:12px 16px;border-bottom:1px solid var(--border);">
+            <input type="text" id="pq-search" placeholder="Search client or quote no…" style="width:230px;" oninput="renderPendingQuotes()"/>
+          </div>
+          <div style="overflow-x:auto;"><table class="data-table"><tbody id="pending-quotes-table"></tbody></table></div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /sales-view -->
+
+<!-- ═══════════ ACCOUNTS VIEW ═══════════ -->
+<div id="accounts-view" class="hidden">
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="switchAccTab('acc-dash')">📊 Dashboard</div>
+    <div class="nav-tab" onclick="switchAccTab('acc-challans')">🚚 Challans <span class="tab-badge" id="acc-pending-badge">0</span></div>
+    <div class="nav-tab" onclick="switchAccTab('acc-bills')">🧾 Bills &amp; Invoices</div>
+    <div class="nav-tab" onclick="switchAccTab('acc-payments')">💰 Payments</div>
+    <div class="nav-tab" onclick="switchAccTab('acc-orders')">📦 Orders</div>
+    <div class="nav-tab" onclick="switchAccTab('acc-quotations')">📄 Quotations <span class="tab-badge" id="acc-qt-badge">0</span></div>
+  </div>
+  <div style="padding:22px 26px;">
+
+    <!-- ACC DASH -->
+    <div id="tab-acc-dash">
+      <div class="section-title" style="margin-bottom:4px;">Accounts Overview</div>
+      <div class="section-sub" id="acc-dash-date"></div>
+      <div class="stats-row">
+        <div class="stat-card gold"><div class="stat-label">Total Billed</div><div class="stat-value" id="acc-stat-billed">₹0</div><div class="stat-sub">All invoices raised</div></div>
+        <div class="stat-card green"><div class="stat-label">Amount Received</div><div class="stat-value" id="acc-stat-recv">₹0</div><div class="stat-sub">Total payments in</div></div>
+        <div class="stat-card red"><div class="stat-label">Outstanding</div><div class="stat-value" id="acc-stat-out">₹0</div><div class="stat-sub">Pending collection</div></div>
+        <div class="stat-card blue"><div class="stat-label">Challans Unbilled</div><div class="stat-value" id="acc-stat-ub">0</div><div class="stat-sub">Need invoice</div></div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div style="padding:12px 16px;font-size:13px;font-weight:600;border-bottom:1px solid var(--border);color:var(--red);">⚠ Challans Awaiting Bill</div>
+        <div style="overflow-x:auto;"><table class="data-table"><tbody id="acc-unbilled-table"></tbody></table></div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;margin-top:0;">
+        <div style="padding:12px 16px;font-size:13px;font-weight:600;border-bottom:1px solid var(--border);color:var(--red);">⏳ Outstanding Payments (Top)</div>
+        <div style="overflow-x:auto;"><table class="data-table"><tbody id="acc-outstanding-table"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ACC CHALLANS -->
+    <div id="tab-acc-challans" class="hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+        <div><div class="section-title">All Challans</div><div class="section-sub">Accounts view — create bills, mark signed</div></div>
+        <button class="btn btn-primary btn-sm" onclick="openBillModal()">+ Create Bill</button>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div style="padding:12px 16px;display:flex;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--border);">
+          <input type="text" id="acc-chl-search" placeholder="Search…" style="width:200px;" oninput="renderAccChallans()"/>
+          <select id="acc-chl-filter" onchange="renderAccChallans()" style="width:150px;"><option value="">All</option><option>Pending Bill</option><option>Billed</option></select>
+        </div>
+        <div style="overflow-x:auto;"><table class="data-table"><tbody id="acc-challans-table"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ACC BILLS -->
+    <div id="tab-acc-bills" class="hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+        <div><div class="section-title">Bills &amp; Invoices</div></div>
+        <button class="btn btn-primary btn-sm" onclick="openBillModal()">+ New Bill</button>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div style="padding:12px 16px;display:flex;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--border);">
+          <input type="text" id="acc-bill-search" placeholder="Search client, bill no…" style="width:200px;" oninput="renderAccBills()"/>
+          <select id="acc-bill-filter" onchange="renderAccBills()" style="width:130px;"><option value="">All</option><option>Unpaid</option><option>Partial</option><option>Paid</option></select>
+        </div>
+        <div style="overflow-x:auto;"><table class="data-table"><tbody id="acc-bills-table"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ACC PAYMENTS -->
+    <div id="tab-acc-payments" class="hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+        <div><div class="section-title">Payment Records</div></div>
+        <button class="btn btn-primary btn-sm" onclick="openPaymentModal()">+ Record Payment</button>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);">
+          <input type="text" id="acc-pay-search" placeholder="Search client…" style="width:200px;" oninput="renderAccPayments()"/>
+        </div>
+        <div style="overflow-x:auto;"><table class="data-table"><tbody id="acc-payments-table"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ACC ORDERS -->
+    <div id="tab-acc-orders" class="hidden">
+      <div><div class="section-title" style="margin-bottom:4px;">Orders (Accounts View)</div><div class="section-sub" style="margin-bottom:18px;">View orders, quotation amounts &amp; advance payments</div></div>
+      <!-- Orders without Challan alert -->
+      <div class="card" style="padding:0;overflow:hidden;margin-bottom:14px;">
+        <div style="padding:12px 16px;font-size:13px;font-weight:600;border-bottom:1px solid var(--border);color:var(--amber);">⚠ Orders Without Challan (Pending Dispatch / Action)</div>
+        <div style="overflow-x:auto;"><table class="data-table"><tbody id="acc-orders-no-challan-table"></tbody></table></div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);">
+          <input type="text" id="acc-ord-search" placeholder="Search client, order no…" style="width:220px;" oninput="renderAccOrders()"/>
+        </div>
+        <div style="overflow-x:auto;"><table class="data-table"><tbody id="acc-orders-table"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ACC QUOTATIONS (read-only with comments) -->
+    <div id="tab-acc-quotations" class="hidden">
+      <div><div class="section-title" style="margin-bottom:4px;">Quotations (Accounts View)</div><div class="section-sub" style="margin-bottom:18px;">Read-only view — add comments for sales team</div></div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);">
+          <input type="text" id="acc-qt-search" placeholder="Search client or quote no…" style="width:230px;" oninput="renderAccQuotations()"/>
+        </div>
+        <div style="overflow-x:auto;"><table class="data-table"><tbody id="acc-quotations-table"></tbody></table></div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /accounts-view -->
+
+</div><!-- /app -->
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- ADD/EDIT CLIENT -->
+<div class="modal-overlay" id="modal-client">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="modal-client-title">New Client</div><button class="modal-close" onclick="closeModal('modal-client')">×</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Client Name *</label><input type="text" id="mc-name" placeholder="e.g. Sharma Ji"/></div>
+        <div class="form-group"><label>Phone</label><input type="text" id="mc-phone"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Project / Area</label><input type="text" id="mc-project" placeholder="e.g. 3BHK Flat, Arera Colony"/></div>
+        <div class="form-group"><label>Date of Visit</label><input type="date" id="mc-date"/></div>
+      </div>
+      <div class="form-group full" style="margin-bottom:14px;"><label>Notes</label><textarea id="mc-notes" placeholder="Budget range, requirements…"></textarea></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button class="btn btn-outline" onclick="closeModal('modal-client')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveClient()">Save Client</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHALLAN MODAL -->
+<div class="modal-overlay" id="modal-challan">
+  <div class="modal modal-lg">
+    <div class="modal-header"><div class="modal-title">New Delivery Challan</div><button class="modal-close" onclick="closeModal('modal-challan')">×</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Client Name *</label><input type="text" id="ch-client"/></div>
+        <div class="form-group"><label>Phone</label><input type="text" id="ch-phone"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full"><label>Delivery Address *</label><input type="text" id="ch-address" placeholder="Site / house address"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Challan Date</label><input type="date" id="ch-date"/></div>
+        <div class="form-group"><label>Linked Order / Quote Ref <span style="color:var(--gold);font-size:9px;">Challan No. = Quote No.</span></label><select id="ch-order-link" style="width:100%;"><option value="">— None —</option></select></div>
+      </div>
+      <div class="div-label">Items Being Dispatched</div>
+      <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
+        <table class="data-table" style="font-size:12px;">
+          <thead><tr><th>Product Name</th><th style="width:70px;">Qty</th><th style="width:90px;">Unit</th><th style="width:32px;"></th></tr></thead>
+          <tbody id="ch-items"></tbody>
+        </table>
+        <div style="padding:9px 12px;background:var(--cream2);">
+          <button class="btn btn-outline btn-sm" onclick="addChallanItem()">+ Add Item</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-challan')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveChallan()">Create Challan</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHALLAN PRINT PREVIEW -->
+<div class="modal-overlay" id="modal-challan-print">
+  <div class="modal" style="max-width:620px;">
+    <div class="modal-header"><div class="modal-title">Challan Preview</div><button class="modal-close" onclick="closeModal('modal-challan-print')">×</button></div>
+    <div class="modal-body" id="challan-print-body"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-challan-print')">Close</button>
+      <button class="btn btn-primary" onclick="window.print()">🖨 Print</button>
+    </div>
+  </div>
+</div>
+
+<!-- ORDER MODAL -->
+<div class="modal-overlay" id="modal-order">
+  <div class="modal modal-lg">
+    <div class="modal-header"><div class="modal-title" id="order-modal-title">New Order</div><button class="modal-close" onclick="closeModal('modal-order')">×</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Client Name *</label><input type="text" id="ord-client"/></div>
+        <div class="form-group"><label>Phone</label><input type="text" id="ord-phone"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full"><label>Address / Project</label><input type="text" id="ord-address"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Order Date</label><input type="date" id="ord-date"/></div>
+        <div class="form-group"><label>Quote / Order No.</label><input type="text" id="ord-qno" placeholder="QT-2025-001"/></div>
+        <div class="form-group"><label>Status</label>
+          <select id="ord-status"><option>Pending</option><option>Material Ordered</option><option>Partially Arrived</option><option>Delivered</option></select>
+        </div>
+      </div>
+      <div class="div-label">Financial</div>
+      <div class="form-row">
+        <div class="form-group"><label>Quotation Total (₹)</label><input type="number" id="ord-total" placeholder="0"/></div>
+        <div class="form-group"><label>Advance Received (₹)</label><input type="number" id="ord-advance" placeholder="0"/></div>
+        <div class="form-group"><label>Advance Mode</label>
+          <select id="ord-adv-mode"><option>Cash</option><option>UPI</option><option>Bank Transfer</option><option>Cheque</option></select>
+        </div>
+      </div>
+      <div class="form-row"><div class="form-group full"><label>Notes</label><textarea id="ord-notes" placeholder="Any remarks…"></textarea></div></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-order')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveOrder()">Save Order</button>
+    </div>
+  </div>
+</div>
+
+<!-- BILL MODAL -->
+<div class="modal-overlay" id="modal-bill">
+  <div class="modal modal-lg">
+    <div class="modal-header"><div class="modal-title">Create Bill / Invoice</div><button class="modal-close" onclick="closeModal('modal-bill')">×</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Client Name *</label><input type="text" id="b-client"/></div>
+        <div class="form-group"><label>Bill Date</label><input type="date" id="b-date"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Linked Challan *</label><select id="b-challan-link" onchange="autofillBillFromChallan()" style="width:100%;"><option value="">— Select Challan —</option></select></div>
+        <div class="form-group"><label>Linked Order</label><select id="b-order-link" style="width:100%;"><option value="">— Select Order —</option></select></div>
+      </div>
+      <div class="div-label">Quotation Items (from linked challan/order)</div>
+      <div id="bill-items-preview" style="background:var(--cream);border:1px solid var(--border);border-radius:var(--radius);padding:12px;font-size:12px;color:var(--text-light);margin-bottom:12px;">Select a challan to see items</div>
+      <div class="form-row">
+        <div class="form-group"><label>Total Invoice Amount (₹) *</label><input type="number" id="b-total" placeholder="0"/></div>
+        <div class="form-group"><label>Amount Received Now (₹)</label><input type="number" id="b-paid" placeholder="0"/></div>
+        <div class="form-group"><label>Payment Mode</label>
+          <select id="b-mode"><option>Cash</option><option>UPI</option><option>Bank Transfer</option><option>Cheque</option><option>Credit (Due)</option></select>
+        </div>
+      </div>
+      <div class="form-row"><div class="form-group full"><label>Notes / Reference</label><input type="text" id="b-notes" placeholder="Cheque no, UTR, remarks…"/></div></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-bill')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveBill()">Save Bill</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="modal-payment">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Record Payment</div><button class="modal-close" onclick="closeModal('modal-payment')">×</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Client Name *</label><input type="text" id="p-client"/></div>
+        <div class="form-group"><label>Date</label><input type="date" id="p-date"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Linked Bill</label><select id="p-bill-link" style="width:100%;"><option value="">— Select Bill —</option></select></div>
+        <div class="form-group"><label>Amount (₹) *</label><input type="number" id="p-amount" placeholder="0"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Mode</label><select id="p-mode"><option>Cash</option><option>UPI</option><option>Bank Transfer</option><option>Cheque</option></select></div>
+        <div class="form-group"><label>Reference / Note</label><input type="text" id="p-note" placeholder="UTR, Cheque no…"/></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-payment')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePayment()">Record Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW QUOTATION (Accounts - Read Only) -->
+<div class="modal-overlay" id="modal-view-quote">
+  <div class="modal modal-xl">
+    <div class="modal-header"><div class="modal-title" id="vq-modal-title">Quotation — Read Only</div><button class="modal-close" onclick="closeModal('modal-view-quote')">×</button></div>
+    <div class="modal-body">
+      <div style="background:var(--cream);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:16px;" id="vq-details"></div>
+      <div style="overflow-x:auto;margin-bottom:16px;" id="vq-table-wrap"></div>
+      <div style="background:var(--dark);color:var(--cream);border-radius:var(--radius);padding:12px 16px;max-width:320px;margin-left:auto;margin-bottom:16px;" id="vq-totals"></div>
+      <div style="border-top:1px solid var(--border);padding-top:14px;">
+        <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;font-weight:600;">💬 Accounts Comments</div>
+        <div id="vq-comments-list" style="margin-bottom:12px;"></div>
+        <div style="display:flex;gap:8px;">
+          <textarea id="vq-new-comment" placeholder="Add a comment for the sales team…" style="flex:1;min-height:56px;"></textarea>
+          <button class="btn btn-primary" style="align-self:flex-end;" onclick="addQuoteComment()">Post</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-view-quote')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- SELECT PRODUCTS FOR ORDER (partial order) -->
+<div class="modal-overlay" id="modal-select-products">
+  <div class="modal modal-lg">
+    <div class="modal-header"><div class="modal-title">Select Products for This Order</div><button class="modal-close" onclick="closeModal('modal-select-products')">×</button></div>
+    <div class="modal-body">
+      <div style="font-size:12px;color:var(--text-light);margin-bottom:14px;">Choose which products from the quotation to include in this order. You can order some or all items.</div>
+      <div id="product-select-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-select-products')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmProductSelection()">Proceed with Selected Items →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MARK SIGNED -->
+<div class="modal-overlay" id="modal-sign">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header"><div class="modal-title">Mark Challan Returned</div><button class="modal-close" onclick="closeModal('modal-sign')">×</button></div>
+    <div class="modal-body">
+      <p style="color:var(--text-light);font-size:13px;margin-bottom:14px;">Confirm the signed challan has been received back by accounts team.</p>
+      <div class="form-group"><label>Challan No.</label><input type="text" id="sign-chl-no" readonly style="background:var(--cream2);"/></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-sign')">Cancel</button>
+      <button class="btn btn-green" onclick="confirmSign()">✓ Mark Signed &amp; Returned</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT HISTORY for a bill -->
+<div class="modal-overlay" id="modal-pay-history">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="pay-history-title">Payment History</div><button class="modal-close" onclick="closeModal('modal-pay-history')">×</button></div>
+    <div class="modal-body" id="pay-history-body"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-pay-history')">Close</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-pay-history');openPaymentModal()">+ Add Payment</button>
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ═══════════════════════════════════════════════════════════
+// GOOGLE IDENTITY & DRIVE SYNC
+// ═══════════════════════════════════════════════════════════
+const AUTHORIZED_EMAIL = 'aurumbpl@gmail.com';
+const CLIENT_ID = ''; // Left blank - uses popup sign-in flow; works without OAuth client ID for basic identity
+const DRIVE_FILE_NAME = 'casa_de_aurum_crm_data.json';
+const SCOPES = 'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.file';
+
+let gTokenClient = null;
+let gAccessToken = null;
+let gDriveFileId = null;
+let gUser = null;
+let currentRole = 'sales'; // 'sales' | 'accounts'
+let syncTimeout = null;
+
+// ── Auth flow using Google Identity Services ──────────────────
+function handleGoogleSignIn() {
+  // We use GIS token model since we need Drive API access too
+  if (!window.google || !window.google.accounts) {
+    toast('Google auth not loaded yet. Please wait a moment and try again.', '⚠');
+    return;
+  }
+  gTokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: getClientId(),
+    scope: SCOPES,
+    callback: onTokenResponse,
+    hint: AUTHORIZED_EMAIL,
+  });
+  gTokenClient.requestAccessToken({ prompt: 'consent' });
+}
+
+function getClientId() {
+  // Embedded client ID - works for the specific origin
+  // For production, replace with your actual OAuth 2.0 client ID
+  return '1042226939195-9u1s83u6jkl1s9qh9o0qmkr1b3f9r6e3.apps.googleusercontent.com';
+}
+
+function onTokenResponse(resp) {
+  if (resp.error) {
+    showAuthErr('Sign-in failed: ' + resp.error);
+    return;
+  }
+  gAccessToken = resp.access_token;
+  // Get user info to verify email
+  fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+    headers: { Authorization: 'Bearer ' + gAccessToken }
+  }).then(r => r.json()).then(info => {
+    if (info.email !== AUTHORIZED_EMAIL) {
+      showAuthErr(`⚠ Access denied. Only ${AUTHORIZED_EMAIL} is allowed.`);
+      gAccessToken = null;
+      return;
+    }
+    gUser = info;
+    onAuthSuccess();
+  }).catch(() => {
+    // If userinfo fails, try to proceed (for local/offline use)
+    onAuthSuccessOffline();
+  });
+}
+
+function onAuthSuccess() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('user-name').textContent = gUser.name || gUser.email;
+  if (gUser.picture) {
+    const av = document.getElementById('user-avatar');
+    av.src = gUser.picture; av.style.display = 'block';
+  }
+  setSyncStatus('connecting', 'Connecting to Google Drive…');
+  initDrive();
+}
+
+function onAuthSuccessOffline() {
+  // Fallback: allow access but use localStorage only
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').classList.remove('hidden');
+  setSyncStatus('err', 'Offline mode — data saved locally only');
+  initApp();
+}
+
+function showAuthErr(msg) {
+  const el = document.getElementById('auth-err');
+  el.textContent = msg; el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 5000);
+}
+
+function confirmSignOut() {
+  if (!confirm('Sign out?')) return;
+  if (window.google && google.accounts && google.accounts.oauth2) {
+    google.accounts.oauth2.revoke(gAccessToken, () => {});
+  }
+  location.reload();
+}
+
+// ── Google Drive ───────────────────────────────────────────────
+async function initDrive() {
+  try {
+    // Find or create app data file
+    const res = await driveRequest('GET',
+      `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name='${DRIVE_FILE_NAME}'&fields=files(id,name,modifiedTime)`);
+    const files = res.files || [];
+    if (files.length > 0) {
+      gDriveFileId = files[0].id;
+      // Load data from Drive
+      const content = await driveDownload(gDriveFileId);
+      if (content) {
+        try {
+          const parsed = JSON.parse(content);
+          // Merge with local (Drive wins)
+          db = parsed;
+          saveLocal();
+        } catch(e) {}
+      }
+    }
+    setSyncStatus('ok', 'Synced with Google Drive');
+    initApp();
+  } catch(e) {
+    console.warn('Drive init error:', e);
+    setSyncStatus('err', 'Drive offline — using local data');
+    initApp();
+  }
+}
+
+async function driveRequest(method, url, body) {
+  const opts = {
+    method,
+    headers: { Authorization: 'Bearer ' + gAccessToken, 'Content-Type': 'application/json' },
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(url, opts);
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
+}
+
+async function driveDownload(fileId) {
+  const r = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+    headers: { Authorization: 'Bearer ' + gAccessToken }
+  });
+  if (!r.ok) return null;
+  return r.text();
+}
+
+async function driveSave() {
+  if (!gAccessToken) { saveLocal(); return; }
+  const content = JSON.stringify(db);
+  const metadata = { name: DRIVE_FILE_NAME, parents: gDriveFileId ? undefined : ['appDataFolder'] };
+  try {
+    let r;
+    if (gDriveFileId) {
+      // Update existing
+      const form = new FormData();
+      form.append('metadata', new Blob([JSON.stringify({})], { type: 'application/json' }));
+      form.append('file', new Blob([content], { type: 'application/json' }));
+      r = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${gDriveFileId}?uploadType=multipart`, {
+        method: 'PATCH',
+        headers: { Authorization: 'Bearer ' + gAccessToken },
+        body: form,
+      });
+    } else {
+      // Create new
+      const form = new FormData();
+      form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+      form.append('file', new Blob([content], { type: 'application/json' }));
+      r = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + gAccessToken },
+        body: form,
+      });
+      if (r.ok) {
+        const j = await r.json();
+        gDriveFileId = j.id;
+      }
+    }
+    if (r.ok) {
+      saveLocal();
+      setSyncStatus('ok', 'Saved · ' + new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }));
+    } else {
+      setSyncStatus('err', 'Drive save failed — saved locally');
+      saveLocal();
+    }
+  } catch(e) {
+    setSyncStatus('err', 'Drive offline — saved locally');
+    saveLocal();
+  }
+}
+
+function setSyncStatus(state, msg) {
+  const dot = document.getElementById('sync-dot');
+  dot.className = 'sync-dot' + (state === 'ok' ? ' ok' : state === 'err' ? ' err' : '');
+  document.getElementById('sync-label').textContent = msg;
+}
+
+// Debounced save — waits 1.5s after last change then saves to Drive
+function save() {
+  saveLocal();
+  clearTimeout(syncTimeout);
+  setSyncStatus('connecting', 'Saving…');
+  syncTimeout = setTimeout(driveSave, 1500);
+}
+
+function saveLocal() {
+  try { localStorage.setItem('cda_unified_db', JSON.stringify(db)); } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+// DATA MODEL
+// ═══════════════════════════════════════════════════════════
+let db = {
+  clients: [],      // CRM clients with selections, quoteRows, tcList
+  orders: [],       // { id, client, phone, address, date, qno, total, advance, advMode, status, notes, clientId }
+  challans: [],     // { id, client, phone, address, date, orderRef, items, signed, billStatus, billRef }
+  bills: [],        // { id, client, date, challanRef, orderRef, items, total, paid, mode, notes, payStatus }
+  payments: [],     // { id, date, client, billRef, amount, mode, note }
+};
+
+// Load from localStorage as starting point
+try {
+  const saved = localStorage.getItem('cda_unified_db');
+  if (saved) {
+    const p = JSON.parse(saved);
+    // Migrate old separate data if present
+    db = p;
+    // Also migrate old CRM data from original file
+    if (!db.clients || !db.clients.length) {
+      const oldClients = JSON.parse(localStorage.getItem('dv_clients') || '[]');
+      if (oldClients.length) db.clients = oldClients;
+    }
+  }
+} catch(e) {}
+
+let counters = { order: 1000, challan: 500, bill: 200, quote: 100 };
+try { const sc = localStorage.getItem('cda_counters'); if (sc) counters = JSON.parse(sc); } catch(e) {}
+function saveCounters() { try { localStorage.setItem('cda_counters', JSON.stringify(counters)); } catch(e) {} }
+function nextId(type) { counters[type]++; saveCounters(); return counters[type]; }
+
+function today() { return new Date().toISOString().slice(0,10); }
+function fmtDate(d) {
+  if (!d) return '—';
+  try { return new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }); } catch(e) { return d; }
+}
+function fmt(n) { if (!n && n !== 0) return '—'; return '₹' + Number(n).toLocaleString('en-IN'); }
+function esc(s) { return (s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function statusBadge(s) {
+  const map = {
+    'Pending': 'badge-amber', 'Material Ordered': 'badge-blue', 'Partially Arrived': 'badge-blue',
+    'Delivered': 'badge-green', 'Pending Bill': 'badge-amber', 'Billed': 'badge-green',
+    'Paid': 'badge-green', 'Unpaid': 'badge-red', 'Partial': 'badge-amber',
+    'Signed': 'badge-green', 'Not Returned': 'badge-red', 'Cash': 'badge-gray',
+    'UPI': 'badge-blue', 'Bank Transfer': 'badge-blue', 'Cheque': 'badge-gray',
+    'Credit (Due)': 'badge-red', 'Active': 'badge-green',
+  };
+  return `<span class="badge ${map[s]||'badge-gray'}"><span class="dot"></span>${s}</span>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT APP
+// ═══════════════════════════════════════════════════════════
+let currentClientId = null;
+let editingClientId = null;
+let currentSalesTab = 'clients';
+let currentAccTab = 'acc-dash';
+let pendingTileImageData = null;
+let signTargetId = null;
+let quoteRows = [];
+
+function initApp() {
+  renderClientList();
+  if (db.clients.length) { currentClientId = db.clients[0].id; renderClientList(); renderClientDetail(); }
+  document.getElementById('q-date').value = today();
+  document.getElementById('acc-dash-date').textContent = new Date().toLocaleDateString('en-IN', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+  updateBadges();
+  renderDashboardAcc();
+  // Paste image support
+  document.addEventListener('paste', e => {
+    for (const item of (e.clipboardData||e.originalEvent.clipboardData).items) {
+      if (item.type.startsWith('image/')) { e.preventDefault(); readImageFile(item.getAsFile()); break; }
+    }
+  });
+  // Close modals on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(o => {
+    o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+  });
+  setInterval(pollDriveUpdates, 30000); // Poll Drive every 30s for other users' changes
+}
+
+async function pollDriveUpdates() {
+  if (!gAccessToken || !gDriveFileId) return;
+  try {
+    const res = await driveRequest('GET',
+      `https://www.googleapis.com/drive/v3/files/${gDriveFileId}?fields=modifiedTime`);
+    const mod = new Date(res.modifiedTime).getTime();
+    const lastMod = parseInt(localStorage.getItem('cda_last_drive_mod') || '0');
+    if (mod > lastMod) {
+      localStorage.setItem('cda_last_drive_mod', mod.toString());
+      const content = await driveDownload(gDriveFileId);
+      if (content) {
+        const parsed = JSON.parse(content);
+        db = parsed;
+        saveLocal();
+        refreshAllViews();
+        setSyncStatus('ok', 'Updated · ' + new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' }));
+      }
+    }
+  } catch(e) {}
+}
+
+function refreshAllViews() {
+  renderClientList();
+  if (currentClientId) renderClientDetail();
+  updateBadges();
+  renderDashboardAcc();
+  renderChallans();
+  renderOrders();
+  renderAccChallans();
+  renderAccBills();
+  renderAccPayments();
+  renderAccOrders();
+  renderPendingQuotes();
+  renderAccQuotations();
+}
+
+// ═══════════════════════════════════════════════════════════
+// ROLE SWITCHING
+// ═══════════════════════════════════════════════════════════
+function switchRole() {
+  currentRole = currentRole === 'sales' ? 'accounts' : 'sales';
+  document.getElementById('sales-view').classList.toggle('hidden', currentRole !== 'sales');
+  document.getElementById('accounts-view').classList.toggle('hidden', currentRole !== 'accounts');
+  document.getElementById('role-badge-el').textContent = currentRole === 'sales' ? 'Sales' : 'Accounts';
+  document.getElementById('role-badge-el').className = 'role-badge ' + (currentRole === 'sales' ? 'role-sales' : 'role-accounts');
+  document.getElementById('role-label').textContent = currentRole === 'sales' ? 'Sales' : 'Accounts';
+  document.getElementById('role-switch-btn').textContent = currentRole === 'sales' ? 'Switch to Accounts' : 'Switch to Sales';
+  if (currentRole === 'accounts') renderDashboardAcc();
+}
+
+// ═══════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════════════════════
+function switchTab(tab) {
+  currentSalesTab = tab;
+  const tabs = ['clients','quotation','ppt','challans-sales','orders-sales','pending-quotes'];
+  document.querySelectorAll('#sales-view .nav-tab').forEach((t,i) => t.classList.toggle('active', tabs[i] === tab));
+  tabs.forEach(t => { const el = document.getElementById('tab-'+t); if (el) el.classList.toggle('hidden', t !== tab); });
+  if (tab === 'quotation') renderQuotation();
+  if (tab === 'ppt') renderPPTPreview();
+  if (tab === 'challans-sales') { renderChallans(); renderChallanStats(); }
+  if (tab === 'orders-sales') renderOrders();
+  if (tab === 'pending-quotes') renderPendingQuotes();
+}
+
+function switchAccTab(tab) {
+  currentAccTab = tab;
+  const tabs = ['acc-dash','acc-challans','acc-bills','acc-payments','acc-orders','acc-quotations'];
+  document.querySelectorAll('#accounts-view .nav-tab').forEach((t,i) => t.classList.toggle('active', tabs[i] === tab));
+  tabs.forEach(t => { const el = document.getElementById('tab-'+t); if (el) el.classList.toggle('hidden', t !== tab); });
+  if (tab === 'acc-dash') renderDashboardAcc();
+  if (tab === 'acc-challans') renderAccChallans();
+  if (tab === 'acc-bills') renderAccBills();
+  if (tab === 'acc-payments') renderAccPayments();
+  if (tab === 'acc-orders') renderAccOrders();
+  if (tab === 'acc-quotations') renderAccQuotations();
+}
+
+function updateBadges() {
+  const p = db.challans.filter(c => c.billStatus === 'Pending Bill').length;
+  document.getElementById('pending-challan-badge').textContent = p;
+  document.getElementById('acc-pending-badge').textContent = p;
+  // Pending quotations = clients with quoteRows but no orders
+  const pq = db.clients.filter(c=>(c.quoteRows&&c.quoteRows.length>0)&&!db.orders.find(o=>o.clientId===c.id)).length;
+  const pqEl = document.getElementById('pending-quotes-badge'); if(pqEl) pqEl.textContent = pq;
+  const qtBadge = document.getElementById('acc-qt-badge');
+  if (qtBadge) { const qtCount = db.clients.filter(c=>c.quoteRows&&c.quoteRows.length>0).length; qtBadge.textContent = qtCount; }
+}
+
+// ═══════════════════════════════════════════════════════════
+// CLIENT LIST (CRM)
+// ═══════════════════════════════════════════════════════════
+function getClient(id) { return db.clients.find(c => c.id === id); }
+
+function renderClientList(filter='') {
+  const el = document.getElementById('clientList');
+  const filtered = db.clients.filter(c => c.name.toLowerCase().includes(filter.toLowerCase()));
+  if (!filtered.length) { el.innerHTML = '<div style="color:var(--text-light);font-size:12px;padding:10px;">No clients found.</div>'; return; }
+  el.innerHTML = filtered.map(c => {
+    const order = db.orders.find(o => o.clientId === c.id);
+    return `<div class="client-item ${c.id===currentClientId?'active':''}" onclick="selectClient('${c.id}')">
+      <div class="client-item-name">${c.name}</div>
+      <div class="client-item-meta">${c.project||''}${c.date?' · '+c.date:''}</div>
+      <div class="client-item-meta">${(c.selections||[]).length} tile(s) · ${(c.quoteRows||[]).length} quote item(s)</div>
+      ${order ? `<div class="client-item-tags"><span class="badge badge-gold" style="font-size:9px;">${statusBadge(order.status).replace(/span>/g,'')}</span></div>` : ''}
+    </div>`;
+  }).join('');
+}
+function filterClients(v) { renderClientList(v); }
+function selectClient(id) { currentClientId = id; renderClientList(); renderClientDetail(); }
+
+function renderClientDetail() {
+  const c = getClient(currentClientId);
+  if (!c) {
+    document.getElementById('no-client-msg').classList.remove('hidden');
+    document.getElementById('client-detail').classList.add('hidden');
+    return;
+  }
+  document.getElementById('no-client-msg').classList.add('hidden');
+  document.getElementById('client-detail').classList.remove('hidden');
+  document.getElementById('detail-client-name').textContent = c.name;
+  document.getElementById('detail-client-meta').textContent = [c.project, c.phone, c.date].filter(Boolean).join(' · ');
+  renderSelections();
+}
+
+function openAddClient() {
+  editingClientId = null;
+  document.getElementById('modal-client-title').textContent = 'New Client';
+  ['mc-name','mc-phone','mc-project','mc-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('mc-date').value = today();
+  openModal('modal-client');
+}
+function editClient() {
+  const c = getClient(currentClientId); if (!c) return;
+  editingClientId = c.id;
+  document.getElementById('modal-client-title').textContent = 'Edit Client';
+  document.getElementById('mc-name').value = c.name||'';
+  document.getElementById('mc-phone').value = c.phone||'';
+  document.getElementById('mc-project').value = c.project||'';
+  document.getElementById('mc-date').value = c.date||'';
+  document.getElementById('mc-notes').value = c.notes||'';
+  openModal('modal-client');
+}
+function saveClient() {
+  const name = document.getElementById('mc-name').value.trim();
+  if (!name) { toast('Client name is required','⚠'); return; }
+  if (editingClientId) {
+    const c = getClient(editingClientId);
+    Object.assign(c, { name, phone: document.getElementById('mc-phone').value.trim(), project: document.getElementById('mc-project').value.trim(), date: document.getElementById('mc-date').value, notes: document.getElementById('mc-notes').value.trim() });
+  } else {
+    db.clients.unshift({ id: Date.now().toString(), name, phone: document.getElementById('mc-phone').value.trim(), project: document.getElementById('mc-project').value.trim(), date: document.getElementById('mc-date').value, notes: document.getElementById('mc-notes').value.trim(), selections: [], quoteRows: [], tcList: null });
+    currentClientId = db.clients[0].id;
+  }
+  save(); renderClientList(); renderClientDetail(); closeModal('modal-client'); toast('Client saved ✓');
+}
+function deleteClient() {
+  if (!confirm('Delete this client and all their tile selection data?')) return;
+  db.clients = db.clients.filter(c => c.id !== currentClientId);
+  currentClientId = null; save(); renderClientList(); renderClientDetail();
+}
+
+// ═══════════════════════════════════════════════════════════
+// TILE SELECTIONS
+// ═══════════════════════════════════════════════════════════
+function previewTileImage(input) { const f = input.files[0]; if (f) readImageFile(f); }
+function readImageFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const r = new FileReader();
+  r.onload = e => {
+    pendingTileImageData = e.target.result;
+    const p = document.getElementById('tile-img-preview');
+    p.src = pendingTileImageData; p.style.display = 'block';
+    document.getElementById('drop-zone-hint').textContent = '✓ Image ready';
+    document.getElementById('drop-zone-hint').style.color = 'var(--green)';
+  };
+  r.readAsDataURL(file);
+}
+function handleDDOver(e) { e.preventDefault(); e.currentTarget.style.borderColor='var(--gold)'; }
+function handleDDLeave(e) { e.currentTarget.style.borderColor=''; }
+function handleDDDrop(e) { e.preventDefault(); e.currentTarget.style.borderColor=''; const f=e.dataTransfer.files[0]; if(f&&f.type.startsWith('image/')) readImageFile(f); }
+
+function addTileSelection() {
+  const c = getClient(currentClientId); if (!c) return;
+  const name = document.getElementById('new-tile-name').value.trim();
+  if (!name) { toast('Please enter a tile name','⚠'); return; }
+  let room = document.getElementById('new-tile-room').value;
+  if (room === 'Custom…') room = document.getElementById('new-tile-room-custom').value.trim() || 'Other';
+  const tile = { id: Date.now().toString(), name, brand: document.getElementById('new-tile-brand').value.trim(), size: document.getElementById('new-tile-size').value.trim(), mrp: document.getElementById('new-tile-mrp').value||'', room, notes: document.getElementById('new-tile-notes').value.trim(), image: pendingTileImageData||null };
+  if (!c.selections) c.selections = [];
+  c.selections.push(tile);
+  save();
+  ['new-tile-name','new-tile-brand','new-tile-size','new-tile-mrp','new-tile-notes','new-tile-room-custom'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('new-tile-room').value='';
+  document.getElementById('tile-img-upload').value='';
+  document.getElementById('tile-img-preview').style.display='none';
+  document.getElementById('drop-zone-hint').textContent='Click, drag a photo here, or paste from clipboard';
+  document.getElementById('drop-zone-hint').style.color='';
+  pendingTileImageData = null;
+  renderSelections();
+  toast('Tile added');
+}
+function deleteTile(tileId) {
+  const c = getClient(currentClientId); if (!c) return;
+  c.selections = c.selections.filter(t => t.id !== tileId);
+  save(); renderSelections(); renderClientList();
+}
+function renderSelections() {
+  const c = getClient(currentClientId); if (!c) return;
+  const grid = document.getElementById('selections-grid');
+  const sels = c.selections || [];
+  document.getElementById('tile-count-badge').textContent = sels.length;
+  if (!sels.length) { grid.innerHTML = '<div style="color:var(--text-light);font-size:13px;padding:16px;">No tiles added yet.</div>'; return; }
+  grid.innerHTML = sels.map(t => `
+    <div class="tile-card">
+      ${t.image ? `<img src="${t.image}" alt="${esc(t.name)}">` : '<div class="no-img">No Image</div>'}
+      <div class="tile-card-body">
+        <div class="tile-name">${t.name}</div>
+        <div class="tile-meta">${[t.brand,t.size].filter(Boolean).join(' · ')}</div>
+        ${t.mrp?`<div class="tile-meta">₹${t.mrp}/box</div>`:''}
+        ${t.room?`<div class="tile-room-tag">${t.room}</div>`:''}
+        ${t.notes?`<div class="tile-meta" style="font-style:italic;margin-top:3px;">${t.notes}</div>`:''}
+        <div style="margin-top:8px;"><button class="btn btn-danger" onclick="deleteTile('${t.id}')">Remove</button></div>
+      </div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// QUOTATION
+// ═══════════════════════════════════════════════════════════
+function renderQuotation() {
+  const c = getClient(currentClientId);
+  if (!c) { document.getElementById('no-client-quote').classList.remove('hidden'); document.getElementById('quote-content').classList.add('hidden'); return; }
+  document.getElementById('no-client-quote').classList.add('hidden');
+  document.getElementById('quote-content').classList.remove('hidden');
+  document.getElementById('quote-client-sub').textContent = 'Building for: ' + c.name;
+  document.getElementById('q-client-name').value = c.name;
+  document.getElementById('q-client-phone').value = c.phone||'';
+  document.getElementById('q-date').value = today();
+  // Auto-generate quotation number if not set
+  if (!c.quoteNo) {
+    counters.quote = (counters.quote||100)+1; saveCounters();
+    c.quoteNo = 'QT-'+new Date().getFullYear()+'-'+String(counters.quote).padStart(3,'0');
+    save();
+  }
+  document.getElementById('q-orderno').value = c.quoteNo;
+  document.getElementById('q-orderno').readOnly = true;
+  quoteRows = c.quoteRows || [];
+  renderQuoteRows();
+  renderCharges();
+  if (!c.tcList) c.tcList = ['Delivery within 14 to 25 working days from order confirmation.','50% advance payment required at the time of order booking.','Goods once sold will not be taken back.','Breakage during transit is not our responsibility.','Price valid for 7 days from the date of this quotation.'];
+  renderTC();
+}
+function rowAmtNum(r) { return (parseFloat(r.qty)||0) * (parseFloat(r.discPrice)||parseFloat(r.mrp)||0); }
+function rowAmt(r) { const a=rowAmtNum(r); return a?'₹'+a.toLocaleString('en-IN'):'—'; }
+function renderQuoteRows() {
+  const tbody = document.getElementById('quote-rows');
+  if (!quoteRows.length) { tbody.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--text-light);padding:20px;">No items. Click "+ Add Row" or "Import from Selection".</td></tr>'; recalcTotals(); return; }
+  tbody.innerHTML = quoteRows.map((r,i) => `
+    <tr>
+      <td style="color:var(--text-light);font-size:11px;">${i+1}</td>
+      <td>${r.image?`<img class="tile-thumb-sm" src="${r.image}">`:'<div style="width:36px;height:36px;background:var(--cream2);border-radius:3px;"></div>'}</td>
+      <td><input type="text" value="${esc(r.name)}" oninput="updateRow(${i},'name',this.value)" placeholder="Product name"/></td>
+      <td><input type="text" value="${esc(r.size)}" oninput="updateRow(${i},'size',this.value)" placeholder="Size"/></td>
+      <td><div class="qty-toggle"><button class="${r.qtyType==='box'?'active':''}" onclick="setQtyType(${i},'box')">Box</button><button class="${r.qtyType==='pcs'?'active':''}" onclick="setQtyType(${i},'pcs')">Pcs</button></div></td>
+      <td><input type="number" value="${r.qty||''}" oninput="updateRow(${i},'qty',this.value)" placeholder="0" min="0" style="width:55px;"/></td>
+      <td><input type="number" value="${r.mrp||''}" oninput="updateRow(${i},'mrp',this.value)" placeholder="0" min="0"/></td>
+      <td><input type="number" value="${r.discPrice||''}" oninput="updateRow(${i},'discPrice',this.value)" placeholder="0" min="0"/></td>
+      <td style="font-weight:600;">${rowAmt(r)}</td>
+      <td><button class="btn btn-danger" style="padding:3px 6px;font-size:12px;" onclick="removeRow(${i})">✕</button></td>
+    </tr>`).join('');
+  recalcTotals();
+}
+function updateRow(i,key,val) { quoteRows[i][key]=val; saveQuoteRows(); recalcTotals(); const tds=document.getElementById('quote-rows').rows[i].cells; tds[8].textContent=rowAmt(quoteRows[i]); }
+function setQtyType(i,type) { quoteRows[i].qtyType=type; saveQuoteRows(); renderQuoteRows(); }
+function removeRow(i) { quoteRows.splice(i,1); saveQuoteRows(); renderQuoteRows(); }
+function addQuoteRow() { quoteRows.push({id:Date.now().toString(),name:'',size:'',qtyType:'box',qty:'',mrp:'',discPrice:'',image:null}); saveQuoteRows(); renderQuoteRows(); }
+function addFromSelection() {
+  const c=getClient(currentClientId); if(!c) return;
+  const sels=c.selections||[];
+  if(!sels.length){toast('No tile selections for this client. Add some first!','⚠');return;}
+  sels.forEach(t=>{if(!quoteRows.find(r=>r.name===t.name)){quoteRows.push({id:t.id+'_q',name:t.name,size:t.size||'',qtyType:'box',qty:'',mrp:t.mrp||'',discPrice:'',image:t.image||null});}});
+  saveQuoteRows(); renderQuoteRows(); toast('Items imported from selection');
+}
+function saveQuoteRows() { const c=getClient(currentClientId); if(c){c.quoteRows=quoteRows;save();} }
+function recalcTotals() {
+  const sub=quoteRows.reduce((s,r)=>s+rowAmtNum(r),0);
+  const disc=parseFloat(document.getElementById('q-extra-disc').value)||0;
+  const gst=parseFloat(document.getElementById('q-gst').value)||0;
+  const afterDisc=sub*(1-disc/100);
+  const afterGst=afterDisc*(1+gst/100);
+  // Add additional charges
+  const c=getClient(currentClientId);
+  const chargesTotal=(c&&c.charges||[]).reduce((s,ch)=>s+(parseFloat(ch.amount)||0),0);
+  const grand=afterGst+chargesTotal;
+  document.getElementById('q-subtotal').textContent='₹'+sub.toLocaleString('en-IN');
+  document.getElementById('q-grand').textContent='₹'+Math.round(grand).toLocaleString('en-IN');
+}
+function renderTC() {
+  const c=getClient(currentClientId); if(!c) return;
+  document.getElementById('tc-list').innerHTML=(c.tcList||[]).map((t,i)=>`
+    <div class="tc-item"><span style="font-size:11px;color:var(--text-light);padding-top:7px;">${i+1}.</span><textarea oninput="updateTC(${i},this.value)">${t}</textarea><button class="btn btn-danger" style="padding:4px 7px;margin-top:3px;" onclick="removeTC(${i})">✕</button></div>`).join('');
+}
+function updateTC(i,val){const c=getClient(currentClientId);if(!c)return;c.tcList[i]=val;save();}
+function addTC(){const c=getClient(currentClientId);if(!c)return;if(!c.tcList)c.tcList=[];c.tcList.push('');save();renderTC();}
+function removeTC(i){const c=getClient(currentClientId);if(!c)return;c.tcList.splice(i,1);save();renderTC();}
+
+// ── Create Order directly from Quotation (with product selection) ─────────────────────
+let selectedProductIds = [];
+function createOrderFromQuote() {
+  const c = getClient(currentClientId); if (!c) { toast('Select a client first','⚠'); return; }
+  if (!quoteRows.length) { toast('No items in quotation','⚠'); return; }
+  selectedProductIds = quoteRows.map(r=>r.id); // default: all selected
+  const list = document.getElementById('product-select-list');
+  list.innerHTML = quoteRows.map((r,i) => {
+    const price = parseFloat(r.discPrice)||parseFloat(r.mrp)||0;
+    return `<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;background:var(--warm);">
+      <input type="checkbox" id="psel-${r.id}" value="${r.id}" checked onchange="toggleProductSel('${r.id}',this.checked)" style="width:16px;height:16px;accent-color:var(--gold);">
+      ${r.image?`<img src="${r.image}" style="width:36px;height:36px;object-fit:cover;border-radius:3px;">`:'<div style="width:36px;height:36px;background:var(--cream2);border-radius:3px;"></div>'}
+      <div style="flex:1;"><div style="font-size:13px;font-weight:600;">${r.name}</div><div style="font-size:11px;color:var(--text-light);">${r.size||''} · ${r.qty||'—'} ${r.qtyType||'box'}</div></div>
+      <div style="text-align:right;"><div style="font-size:13px;color:var(--gold);font-weight:600;">₹${price.toLocaleString('en-IN')}</div><div style="font-size:11px;color:var(--text-light);">per ${r.qtyType||'box'}</div></div>
+    </label>`;
+  }).join('');
+  openModal('modal-select-products');
+}
+function toggleProductSel(id, checked) {
+  if (checked) { if (!selectedProductIds.includes(id)) selectedProductIds.push(id); }
+  else { selectedProductIds = selectedProductIds.filter(x=>x!==id); }
+}
+function confirmProductSelection() {
+  const c = getClient(currentClientId); if (!c) return;
+  const selected = quoteRows.filter(r=>selectedProductIds.includes(r.id));
+  if (!selected.length) { toast('Select at least one product','⚠'); return; }
+  const grand = Math.round(selected.reduce((s,r)=>s+rowAmtNum(r),0));
+  const disc=parseFloat(document.getElementById('q-extra-disc').value)||0;
+  const gst=parseFloat(document.getElementById('q-gst').value)||0;
+  const afterDisc=grand*(1-disc/100), grandTotal=Math.round(afterDisc*(1+gst/100));
+  const qno = document.getElementById('q-orderno').value;
+  closeModal('modal-select-products');
+  openOrderModal();
+  document.getElementById('ord-client').value = c.name;
+  document.getElementById('ord-phone').value = c.phone||'';
+  document.getElementById('ord-address').value = document.getElementById('q-client-addr').value||c.project||'';
+  document.getElementById('ord-total').value = grandTotal;
+  document.getElementById('ord-qno').value = qno;
+  document.getElementById('ord-date').value = today();
+  // Store selected items in order modal notes
+  document.getElementById('ord-notes').value = 'Products: '+selected.map(r=>r.name+(r.qty?' ('+r.qty+' '+r.qtyType+')':'')).join(', ');
+  // Store selected products in a temp var for saving
+  window._pendingOrderProducts = selected;
+}
+
+// ── Print Quotation ──────────────────────────────────────────
+function printQuotation() {
+  const c = getClient(currentClientId); if (!c) return;
+  const brand=document.getElementById('q-brand').value, qno=document.getElementById('q-orderno').value,
+        qdate=document.getElementById('q-date').value, cname=document.getElementById('q-client-name').value,
+        caddr=document.getElementById('q-client-addr').value, cphone=document.getElementById('q-client-phone').value,
+        disc=parseFloat(document.getElementById('q-extra-disc').value)||0,
+        gst=parseFloat(document.getElementById('q-gst').value)||0;
+  const sub=quoteRows.reduce((s,r)=>s+rowAmtNum(r),0);
+  const afterDisc=sub*(1-disc/100), grand=Math.round(afterDisc*(1+gst/100));
+  const productCards=quoteRows.map((r,i)=>{
+    const price=parseFloat(r.discPrice)||parseFloat(r.mrp)||0, mrp=parseFloat(r.mrp)||0;
+    const hasDisc=r.discPrice&&parseFloat(r.discPrice)<mrp;
+    return `<div class="product-card ${i%2===1?'alt':''}">
+      <div class="product-img-wrap">${r.image?`<img src="${r.image}" class="product-img">`:'<div class="product-img-blank"><span>No Image</span></div>'}<div class="product-sno">${i+1}</div></div>
+      <div class="product-info"><div class="product-name">${r.name}</div>${r.size?`<div class="product-detail">📐 ${r.size}</div>`:''}<div class="product-detail">📦 ${r.qty||'—'} ${r.qtyType}</div></div>
+      <div class="product-pricing">${hasDisc?`<div class="price-mrp">MRP ₹${mrp.toLocaleString('en-IN')}</div>`:''}<div class="price-our">₹${price.toLocaleString('en-IN')}<span class="price-unit">/${r.qtyType}</span></div>${hasDisc?`<div class="price-saving">Save ₹${(mrp-price).toLocaleString('en-IN')}</div>`:''}<div class="price-total">${rowAmtNum(r)?'₹'+rowAmtNum(r).toLocaleString('en-IN'):'—'}</div><div class="price-total-label">Total Amount</div></div>
+    </div>`;
+  }).join('');
+  const tcItems=(c.tcList||[]).map((t,i)=>`<div class="tc-row"><span class="tc-num">${i+1}</span><span>${t}</span></div>`).join('');
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;0,700;1,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'DM Sans',sans-serif;background:#F9F5EE;color:#1A1714;}.page{max-width:860px;margin:0 auto;background:white;}.q-header{background:#1A1714;padding:0;display:flex;align-items:stretch;min-height:110px;}.q-header-brand{flex:1;padding:28px 36px;border-right:1px solid #302C29;}.q-brand-name{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;letter-spacing:6px;color:#C9A96E;text-transform:uppercase;}.q-brand-line{width:40px;height:1px;background:#C9A96E;margin:8px 0;}.q-brand-tag{font-size:10px;letter-spacing:2px;color:#7A706A;text-transform:uppercase;}.q-header-meta{padding:24px 32px;text-align:right;display:flex;flex-direction:column;justify-content:center;gap:6px;}.q-meta-label{font-size:9px;letter-spacing:2px;color:#7A706A;text-transform:uppercase;}.q-meta-val{font-size:13px;color:#E8D5B0;font-weight:500;}.client-strip{background:#F5F0E8;padding:18px 36px;display:flex;gap:40px;border-bottom:2px solid #E8D5B0;}.client-field{display:flex;flex-direction:column;gap:3px;}.client-field-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#A09080;}.client-field-val{font-size:14px;font-weight:600;color:#1A1714;}.section-label{padding:14px 36px 10px;display:flex;align-items:center;gap:12px;}.section-label-text{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#C9A96E;font-weight:600;}.section-label-line{flex:1;height:1px;background:#E8D5B0;}.products{padding:0 36px;display:flex;flex-direction:column;gap:12px;margin-bottom:20px;}.product-card{display:grid;grid-template-columns:130px 1fr 180px;border:1px solid #E8D5B0;border-radius:8px;overflow:hidden;background:white;}.product-card.alt{background:#FDFBF7;}.product-img-wrap{position:relative;background:#F0EBE0;}.product-img{width:130px;height:110px;object-fit:cover;display:block;}.product-img-blank{width:130px;height:110px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#A09080;background:#EDE6D8;}.product-sno{position:absolute;top:6px;left:6px;background:#1A1714;color:#C9A96E;font-size:10px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;}.product-info{padding:14px 16px;display:flex;flex-direction:column;justify-content:center;gap:5px;border-right:1px solid #E8D5B0;}.product-name{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:500;color:#1A1714;line-height:1.3;}.product-detail{font-size:11px;color:#7A706A;}.product-pricing{padding:14px 18px;display:flex;flex-direction:column;justify-content:center;align-items:flex-end;gap:3px;background:#1A1714;}.price-mrp{font-size:11px;color:#7A706A;text-decoration:line-through;}.price-our{font-size:20px;font-family:'Cormorant Garamond',serif;color:#C9A96E;font-weight:500;}.price-unit{font-size:11px;color:#A09080;}.price-saving{font-size:10px;color:#5A9B6A;background:rgba(90,155,106,0.15);padding:2px 7px;border-radius:20px;}.price-total{font-size:22px;font-family:'Cormorant Garamond',serif;color:white;font-weight:600;margin-top:6px;border-top:1px solid #302C29;padding-top:6px;width:100%;text-align:right;}.price-total-label{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#7A706A;}.totals-wrap{margin:0 36px 24px;display:flex;justify-content:flex-end;}.totals-box{border:1px solid #E8D5B0;border-radius:8px;overflow:hidden;min-width:300px;}.t-row{display:flex;justify-content:space-between;padding:10px 18px;font-size:13px;border-bottom:1px solid #F0EBE0;color:#4A4440;}.t-row:last-child{border-bottom:none;}.t-row.grand{background:#1A1714;color:#C9A96E;font-family:'Cormorant Garamond',serif;font-size:18px;padding:14px 18px;}.tc-wrap{margin:0 36px 36px;padding:20px 24px;background:#F5F0E8;border-radius:8px;border-left:3px solid #C9A96E;}.tc-title{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#C9A96E;margin-bottom:12px;font-weight:600;}.tc-row{display:flex;gap:10px;margin-bottom:7px;font-size:11px;color:#5A5450;line-height:1.6;}.tc-num{color:#C9A96E;font-weight:700;min-width:14px;}.q-footer{background:#1A1714;padding:24px 36px;display:flex;justify-content:space-between;align-items:flex-end;}.sig-block{display:flex;flex-direction:column;gap:24px;}.sig-line{width:180px;border-top:1px solid #4A4440;padding-top:6px;font-size:10px;color:#7A706A;letter-spacing:1px;}.footer-brand{font-family:'Cormorant Garamond',serif;font-size:14px;color:#4A4440;letter-spacing:2px;text-align:right;}.footer-note{font-size:10px;color:#4A4440;text-align:right;margin-top:4px;}@media print{@page{size:A4;margin:0;}body{background:white;}.page{max-width:100%;}.product-card{break-inside:avoid;}}</style></head><body>
+<div class="page">
+<div class="q-header"><div class="q-header-brand"><div class="q-brand-name">${brand}</div><div class="q-brand-line"></div><div class="q-brand-tag">Tiles &amp; Designer Surfaces · Bhopal</div></div><div class="q-header-meta"><div><div class="q-meta-label">Quotation No.</div><div class="q-meta-val">${qno||'—'}</div></div><div><div class="q-meta-label">Date</div><div class="q-meta-val">${qdate?new Date(qdate).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}):''}</div></div></div></div>
+<div class="client-strip"><div class="client-field"><div class="client-field-label">Prepared For</div><div class="client-field-val">${cname||'—'}</div></div>${cphone?`<div class="client-field"><div class="client-field-label">Phone</div><div class="client-field-val">${cphone}</div></div>`:''} ${caddr?`<div class="client-field"><div class="client-field-label">Project / Address</div><div class="client-field-val">${caddr}</div></div>`:''}</div>
+<div class="section-label"><div class="section-label-text">Selected Products</div><div class="section-label-line"></div><div class="section-label-text">${quoteRows.length} Item${quoteRows.length!==1?'s':''}</div></div>
+<div class="products">${productCards}</div>
+<div class="totals-wrap"><div class="totals-box"><div class="t-row"><span>Subtotal</span><span>₹${sub.toLocaleString('en-IN')}</span></div>${disc?`<div class="t-row"><span>Discount (${disc}%)</span><span style="color:#5A9B6A;">−₹${Math.round(sub*disc/100).toLocaleString('en-IN')}</span></div>`:''} ${gst?`<div class="t-row"><span>GST @ ${gst}%</span><span>₹${Math.round(afterDisc*gst/100).toLocaleString('en-IN')}</span></div>`:''} ${(c.charges||[]).filter(ch=>ch.label&&ch.amount).map(ch=>`<div class="t-row"><span>${ch.label}</span><span>₹${parseFloat(ch.amount).toLocaleString('en-IN')}</span></div>`).join('')}<div class="t-row grand"><span>Grand Total</span><span>₹${(grand+(c.charges||[]).reduce((s,ch)=>s+(parseFloat(ch.amount)||0),0)).toLocaleString('en-IN')}</span></div></div></div>
+${tcItems?`<div class="tc-wrap"><div class="tc-title">Terms &amp; Conditions</div>${tcItems}</div>`:''}
+<div class="q-footer"><div class="sig-block"><div class="sig-line">Customer Signature</div><div class="sig-line">Authorised Signatory</div></div><div><div class="footer-brand">${brand}</div><div class="footer-note">Thank you for choosing us.</div></div></div>
+</div><script>window.onload=()=>{setTimeout(()=>window.print(),400);};<\/script></body></html>`;
+  const w=window.open('','_blank'); w.document.write(html); w.document.close();
+}
+
+// ═══════════════════════════════════════════════════════════
+// PPT PREVIEW & EXPORT
+// ═══════════════════════════════════════════════════════════
+function renderPPTPreview() {
+  const c = getClient(currentClientId);
+  if (!c) { document.getElementById('no-client-ppt').classList.remove('hidden'); document.getElementById('ppt-content').classList.add('hidden'); return; }
+  document.getElementById('no-client-ppt').classList.add('hidden');
+  document.getElementById('ppt-content').classList.remove('hidden');
+  document.getElementById('ppt-client-sub').textContent = 'Presentation for: ' + c.name;
+  const sels = c.selections||[], rooms = [...new Set(sels.map(t=>t.room||'General'))];
+  const container = document.getElementById('ppt-slides-preview');
+  if (!sels.length) { container.innerHTML='<div class="empty-state"><div class="empty-icon">🖼️</div><div class="empty-title">No Tile Selections</div></div>'; return; }
+  container.innerHTML = rooms.map((room,ri)=>{
+    const tiles=sels.filter(t=>(t.room||'General')===room);
+    return `<div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:14px;"><div style="background:var(--dark);color:var(--gold);padding:9px 14px;font-size:12px;display:flex;justify-content:space-between;"><span>Slide ${ri+1}: ${room}</span><span>${tiles.length} tile(s)</span></div><div style="display:flex;flex-wrap:wrap;gap:10px;padding:12px;background:var(--cream);">${tiles.map(t=>`<div style="background:white;border:1px solid var(--border);border-radius:4px;width:130px;text-align:center;padding:7px;">${t.image?`<img src="${t.image}" style="width:114px;height:90px;object-fit:cover;border-radius:3px;display:block;margin:0 auto 5px;">`:'<div style="width:114px;height:90px;background:var(--cream2);border-radius:3px;margin:0 auto 5px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-light);">No Image</div>'}<div style="font-size:11px;font-weight:600;">${t.name}</div><div style="font-size:10px;color:var(--text-light);">${t.size||''}</div></div>`).join('')}</div></div>`;
+  }).join('');
+}
+
+async function exportPPT() {
+  const c = getClient(currentClientId); if (!c) { toast('Select a client first','⚠'); return; }
+  if (window._pptxLoadFailed || !window.PptxGenJS) { exportSlideImages(c); return; }
+  try {
+    const pres = new PptxGenJS(); const BRAND='Casa De Aurum', DARK='1A1714', GOLD='C9A96E', LIGHT='E8D5B0', TAGLINE='Tiles & Designer Surfaces · Bhopal', SW=10, SH=5.63;
+    // Title slide
+    const title=pres.addSlide(); title.background={color:DARK};
+    title.addShape(pres.ShapeType.rect,{x:0,y:0,w:0.07,h:SH,fill:{color:GOLD}});
+    title.addShape(pres.ShapeType.rect,{x:SW-0.07,y:0,w:0.07,h:SH,fill:{color:GOLD}});
+    title.addText(BRAND,{x:0.6,y:1.4,w:SW-1.2,h:1.4,fontSize:52,fontFace:'Georgia',color:GOLD,bold:false,align:'center',valign:'middle'});
+    title.addShape(pres.ShapeType.rect,{x:3.5,y:3.05,w:3,h:0.02,fill:{color:GOLD}});
+    title.addText(TAGLINE,{x:0.6,y:3.2,w:SW-1.2,h:0.5,fontSize:13,color:LIGHT,align:'center'});
+    title.addText(c.name,{x:0.6,y:3.9,w:SW-1.2,h:0.5,fontSize:18,color:GOLD,bold:true,align:'center'});
+    const sels=c.selections||[], rooms=[...new Set(sels.map(t=>t.room||'General'))];
+    for (const room of rooms) {
+      const tiles=sels.filter(t=>(t.room||'General')===room);
+      const slide=pres.addSlide(); slide.background={color:DARK};
+      slide.addText(room,{x:0.4,y:0.18,w:SW-0.8,h:0.6,fontSize:22,fontFace:'Georgia',color:GOLD,align:'left',valign:'middle'});
+      slide.addShape(pres.ShapeType.rect,{x:0.4,y:0.76,w:SW-0.8,h:0.02,fill:{color:GOLD}});
+      const n=tiles.length, cols=Math.min(n,4), cardW=(SW-0.8)/cols, cardH=SH-1.3, LY=0.9;
+      for (let i=0;i<n;i++){
+        const t=tiles[i], col=i%cols, cx=0.4+col*cardW;
+        if (t.image && t.image.startsWith('data:image')) { try { slide.addImage({data:t.image,x:cx+0.05,y:LY,w:cardW-0.1,h:cardH*0.7}); } catch(e){} }
+        const LABEL_H=cardH*0.32;
+        slide.addText(t.name,{x:cx+0.05,y:LY+cardH*0.7+0.06,w:cardW-0.1,h:LABEL_H*0.5,fontSize:n<=2?13:10,color:LIGHT,align:'left',valign:'top'});
+        if(t.size||t.mrp){slide.addText([t.size,t.mrp?'₹'+t.mrp+'/box':''].filter(Boolean).join('  ·  '),{x:cx+0.05,y:LY+cardH*0.7+0.06+LABEL_H*0.52,w:cardW-0.1,h:LABEL_H*0.42,fontSize:n<=2?11:9,color:GOLD,align:'left',valign:'middle'});}
+      }
+      slide.addShape(pres.ShapeType.rect,{x:0,y:SH-0.1,w:SW,h:0.1,fill:{color:GOLD}});
+    }
+    const end=pres.addSlide(); end.background={color:DARK};
+    end.addText('Thank You',{x:0.6,y:2.2,w:SW-1.2,h:1.6,fontSize:60,fontFace:'Georgia',color:GOLD,align:'center',valign:'middle'});
+    end.addText(BRAND,{x:0.6,y:4.2,w:SW-1.2,h:0.6,fontSize:16,color:LIGHT,align:'center',italic:true});
+    await pres.writeFile({fileName:`${c.name.replace(/\s+/g,'_')}_CasaDiAurum.pptx`});
+  } catch(e) { exportSlideImages(c); }
+}
+function exportSlideImages(c) {
+  const sels=c.selections||[], rooms=[...new Set(sels.map(t=>t.room||'General'))];
+  const win=window.open('','_blank');
+  let html=`<html><head><title>${c.name} – Tiles</title><style>body{font-family:Georgia,serif;background:#1A1714;color:#F5F0E8;padding:30px;}h1{color:#C9A96E;letter-spacing:3px;}h2{color:#C9A96E;margin:30px 0 10px;border-bottom:1px solid #C9A96E;padding-bottom:6px;}.grid{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:20px;}.tile{background:#252220;border:1px solid #4A4440;border-radius:6px;padding:10px;width:170px;text-align:center;}.tile img{width:150px;height:120px;object-fit:cover;border-radius:4px;}.tile-name{font-size:13px;font-weight:600;margin-top:7px;color:#F5F0E8;}.tile-detail{font-size:11px;color:#A09080;}</style></head><body><h1>Casa De Aurum · ${c.name}</h1><p style="color:#A09080;font-size:12px;">${new Date().toLocaleDateString('en-IN')}</p>`;
+  rooms.forEach(room=>{html+=`<h2>${room}</h2><div class="grid">`;sels.filter(t=>(t.room||'General')===room).forEach(t=>{html+=`<div class="tile">${t.image?`<img src="${t.image}">`:'<div style="width:150px;height:120px;background:#302C29;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#7A706A;font-size:11px;">No Image</div>'}<div class="tile-name">${t.name}</div><div class="tile-detail">${t.size||''}</div><div class="tile-detail">${t.mrp?'₹'+t.mrp+'/box':''}</div></div>`;});html+='</div>';});
+  html+='</body></html>'; win.document.write(html); win.document.close();
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORDERS
+// ═══════════════════════════════════════════════════════════
+function openOrderModal(prefill) {
+  document.getElementById('order-modal-title').textContent = 'New Order';
+  ['ord-client','ord-phone','ord-address','ord-qno','ord-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ord-total').value='';
+  document.getElementById('ord-advance').value='';
+  document.getElementById('ord-date').value=today();
+  document.getElementById('ord-status').value='Pending';
+  openModal('modal-order');
+}
+function saveOrder() {
+  const client=document.getElementById('ord-client').value.trim();
+  if (!client) { toast('Client name required','⚠'); return; }
+  const order = {
+    id:'ORD-'+nextId('order'), client, phone:document.getElementById('ord-phone').value,
+    address:document.getElementById('ord-address').value, date:document.getElementById('ord-date').value||today(),
+    qno:document.getElementById('ord-qno').value, total:parseFloat(document.getElementById('ord-total').value)||0,
+    advance:parseFloat(document.getElementById('ord-advance').value)||0,
+    advMode:document.getElementById('ord-adv-mode').value, status:document.getElementById('ord-status').value,
+    notes:document.getElementById('ord-notes').value,
+    clientId: currentClientId||null,
+  };
+  if (window._pendingOrderProducts) { order.selectedProducts = window._pendingOrderProducts; window._pendingOrderProducts = null; }
+  db.orders.push(order);
+  // Mark quotation as having an order so it leaves pending list
+  if (order.clientId) { const cl=getClient(order.clientId); if(cl) cl.hasOrder=true; save(); }
+  save(); closeModal('modal-order'); renderOrders(); renderClientList(); updateBadges();
+  toast('Order '+order.id+' saved ✓');
+}
+function renderOrders() {
+  const search=(document.getElementById('ord-search')?.value||'').toLowerCase();
+  const rows=db.orders.filter(o=>!search||o.client.toLowerCase().includes(search)||o.id.toLowerCase().includes(search));
+  const tbody=document.getElementById('order-table-body');
+  if (!rows.length) { tbody.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text-light);">No orders yet. Create one from Quotation or click "+ New Order".</td></tr>`; return; }
+  // Table header
+  tbody.parentElement.innerHTML = `<thead><tr><th>Order ID</th><th>Client</th><th>Quote Ref</th><th>Date</th><th>Quote Total</th><th>Advance</th><th>Mode</th><th>Status</th><th></th></tr></thead><tbody id="order-table-body">${rows.map(o=>{
+    const bal=o.total-o.advance;
+    return `<tr>
+      <td class="mono primary">${o.id}</td>
+      <td class="primary">${o.client}</td>
+      <td class="mono">${o.qno||'—'}</td>
+      <td>${fmtDate(o.date)}</td>
+      <td class="mono">${fmt(o.total)}</td>
+      <td class="mono" style="color:var(--green);">${fmt(o.advance)}</td>
+      <td>${statusBadge(o.advMode||'—')}</td>
+      <td>${statusBadge(o.status)}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-sm btn-outline" onclick="editOrderStatus('${o.id}')">Edit</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteOrder('${o.id}')">✕</button>
+      </td>
+    </tr>`;
+  }).join('')}</tbody>`;
+  document.getElementById('order-table-body'); // re-acquire
+}
+function editOrderStatus(id) {
+  const o=db.orders.find(x=>x.id===id); if(!o) return;
+  const ns=prompt('New status:\nPending / Material Ordered / Partially Arrived / Delivered',o.status);
+  if(ns){o.status=ns;save();renderOrders();}
+}
+function deleteOrder(id) {
+  if(!confirm('Delete this order?'))return;
+  db.orders=db.orders.filter(o=>o.id!==id);
+  save();renderOrders();toast('Order deleted','🗑');
+}
+
+// ═══════════════════════════════════════════════════════════
+// CHALLANS (Sales)
+// ═══════════════════════════════════════════════════════════
+function openChallanModal() {
+  ['ch-client','ch-phone','ch-address'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ch-date').value=today();
+  document.getElementById('ch-items').innerHTML='';
+  // populate order link
+  const sel=document.getElementById('ch-order-link');
+  sel.innerHTML='<option value="">— None —</option>'+db.orders.map(o=>`<option value="${o.id}">${o.id} — ${o.client} (${o.qno||'no ref'})</option>`).join('');
+  openModal('modal-challan');
+}
+function addChallanItem() {
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td><input type="text" placeholder="Product name e.g. Kajaria 600×600 Buff" style="width:100%;"/></td><td><input type="number" placeholder="1" style="width:60px;"/></td><td><select style="width:80px;"><option>Box</option><option>Piece</option><option>Set</option><option>Sqft</option></select></td><td><button class="btn btn-danger" style="padding:2px 6px;" onclick="this.closest('tr').remove()">✕</button></td>`;
+  document.getElementById('ch-items').appendChild(tr);
+}
+function collectChallanItems() {
+  return Array.from(document.querySelectorAll('#ch-items tr')).map(tr=>{
+    const ins=tr.querySelectorAll('input,select');
+    return {name:ins[0].value,qty:ins[1].value,unit:ins[2].value};
+  }).filter(i=>i.name.trim());
+}
+function saveChallan() {
+  const client=document.getElementById('ch-client').value.trim();
+  const address=document.getElementById('ch-address').value.trim();
+  if (!client||!address) { toast('Client name & address are required','⚠'); return; }
+  const items=collectChallanItems();
+  if (!items.length) { toast('Add at least one item','⚠'); return; }
+  const orderRef=document.getElementById('ch-order-link').value;
+  // Challan ID = Quote No of linked order (for easy tally), else auto-increment
+  let challanId;
+  if (orderRef) {
+    const linkedOrder=db.orders.find(o=>o.id===orderRef);
+    if (linkedOrder&&linkedOrder.qno) {
+      challanId='CHL-'+linkedOrder.qno.replace(/[^A-Za-z0-9\-]/g,'');
+      // ensure unique
+      if (db.challans.find(x=>x.id===challanId)) challanId='CHL-'+nextId('challan');
+    } else challanId='CHL-'+nextId('challan');
+  } else challanId='CHL-'+nextId('challan');
+  const challan = {
+    id:challanId, client, phone:document.getElementById('ch-phone').value,
+    address, date:document.getElementById('ch-date').value||today(),
+    orderRef,
+    items, signed:false, billStatus:'Pending Bill', billRef:null,
+  };
+  db.challans.push(challan);
+  save(); closeModal('modal-challan'); renderChallans(); renderChallanStats(); updateBadges();
+  toast('Challan '+challan.id+' created ✓');
+}
+function renderChallanStats() {
+  const total=db.challans.length, pending=db.challans.filter(c=>c.billStatus==='Pending Bill').length;
+  document.getElementById('s-chl-total').textContent=total;
+  document.getElementById('s-chl-pending').textContent=pending;
+  document.getElementById('s-chl-billed').textContent=total-pending;
+}
+function renderChallans() {
+  const search=(document.getElementById('chl-search')?.value||'').toLowerCase();
+  const filter=document.getElementById('chl-filter')?.value||'';
+  const rows=db.challans.filter(c=>(!search||c.client.toLowerCase().includes(search)||c.id.toLowerCase().includes(search))&&(!filter||c.billStatus===filter));
+  const tbody=document.querySelector('#challan-table-sales tbody');
+  if (!tbody) return;
+  if (!rows.length) { tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-light);">No challans found.</td></tr>'; return; }
+  tbody.parentElement.innerHTML=`<thead><tr><th>Challan No.</th><th>Client</th><th>Address</th><th>Date</th><th>Items</th><th>Signed</th><th>Bill Status</th><th></th></tr></thead><tbody>${rows.map(c=>`<tr>
+    <td class="mono primary">${c.id}</td>
+    <td class="primary">${c.client}</td>
+    <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.address||'—'}</td>
+    <td>${fmtDate(c.date)}</td>
+    <td>${c.items?.length||0} item(s)</td>
+    <td>${statusBadge(c.signed?'Signed':'Not Returned')}</td>
+    <td>${statusBadge(c.billStatus)}</td>
+    <td style="white-space:nowrap;">
+      <button class="btn btn-sm btn-outline" onclick="printChallan('${c.id}')">🖨</button>
+      ${!c.signed?`<button class="btn btn-sm btn-outline" onclick="openSignModal('${c.id}')">✓ Sign</button>`:''}
+      ${c.billStatus==='Pending Bill'?`<button class="btn btn-sm btn-primary" onclick="openBillFromChallan('${c.id}')">Bill</button>`:''}
+      <button class="btn btn-sm btn-danger" onclick="deleteChallan('${c.id}')">✕</button>
+    </td>
+  </tr>`).join('')}</tbody>`;
+}
+function deleteChallan(id) {
+  if(!confirm('Delete this challan?'))return;
+  db.challans=db.challans.filter(c=>c.id!==id);
+  save();renderChallans();renderChallanStats();renderAccChallans();updateBadges();toast('Deleted','🗑');
+}
+
+// CHALLAN PRINT
+function printChallan(id) {
+  const c=db.challans.find(x=>x.id===id); if (!c) return;
+  const order=c.orderRef?db.orders.find(o=>o.id===c.orderRef):null;
+  document.getElementById('challan-print-body').innerHTML=`
+    <div class="challan-print-doc">
+      <div class="cp-head">
+        <div><div class="cp-brand">Casa De Aurum</div><div class="cp-sub">Tiles &amp; Sanitary · Bhopal</div></div>
+        <div style="text-align:right;"><div style="font-family:'DM Mono',monospace;font-size:14px;color:#8a6a20;font-weight:700;">${c.id}</div><div style="font-size:12px;color:#777;margin-top:3px;">Date: ${fmtDate(c.date)}</div></div>
+      </div>
+      <div style="font-size:12px;color:#555;margin-bottom:12px;">
+        <div><strong>Client:</strong> ${c.client}</div>
+        ${c.phone?`<div><strong>Phone:</strong> ${c.phone}</div>`:''}
+        ${c.address?`<div><strong>Delivery Address:</strong> ${c.address}</div>`:''}
+        ${order?`<div><strong>Order Ref:</strong> ${order.id}${order.qno?' / '+order.qno:''} | Quote Amount: ${fmt(order.total)}</div>`:''}
+        ${c.orderRef&&!order?`<div><strong>Order Ref:</strong> ${c.orderRef}</div>`:''}
+      </div>
+      <table class="cp-table">
+        <thead><tr><th style="width:36px;">S.No</th><th>Product Description</th><th style="width:60px;">Qty</th><th style="width:70px;">Unit</th></tr></thead>
+        <tbody>${(c.items||[]).map((item,i)=>`<tr><td style="text-align:center;">${i+1}</td><td>${item.name}</td><td style="text-align:center;">${item.qty||'—'}</td><td style="text-align:center;">${item.unit||'—'}</td></tr>`).join('')||'<tr><td colspan="4" style="text-align:center;color:#aaa;">No items</td></tr>'}</tbody>
+      </table>
+      <div class="cp-sigs">
+        <div class="cp-sig-box"><div class="cp-sig-line">Customer Signature</div></div>
+        <div class="cp-sig-box"><div class="cp-sig-line">Team Casa De Aurum</div></div>
+      </div>
+    </div>`;
+  openModal('modal-challan-print');
+}
+
+// SIGN MODAL
+function openSignModal(id) { signTargetId=id; document.getElementById('sign-chl-no').value=id; openModal('modal-sign'); }
+function confirmSign() {
+  const c=db.challans.find(x=>x.id===signTargetId);
+  if(c){c.signed=true;save();renderChallans();renderAccChallans();toast('Challan marked as signed & returned ✓');}
+  closeModal('modal-sign');
+}
+
+// ═══════════════════════════════════════════════════════════
+// BILLS
+// ═══════════════════════════════════════════════════════════
+function openBillModal() {
+  document.getElementById('b-date').value=today();
+  ['b-client','b-total','b-paid','b-notes'].forEach(id=>document.getElementById(id).value='');
+  // Populate challan dropdown (pending only)
+  const sel=document.getElementById('b-challan-link');
+  sel.innerHTML='<option value="">— Select Challan —</option>'+db.challans.filter(c=>c.billStatus==='Pending Bill').map(c=>`<option value="${c.id}">${c.id} — ${c.client}</option>`).join('');
+  const osel=document.getElementById('b-order-link');
+  osel.innerHTML='<option value="">— Select Order —</option>'+db.orders.map(o=>`<option value="${o.id}">${o.id} — ${o.client} (${fmt(o.total)})</option>`).join('');
+  document.getElementById('bill-items-preview').textContent='Select a challan to see items';
+  document.getElementById('bill-items-preview').style.color='var(--text-light)';
+  openModal('modal-bill');
+}
+function openBillFromChallan(challanId) {
+  openBillModal();
+  const c=db.challans.find(x=>x.id===challanId); if(!c) return;
+  document.getElementById('b-client').value=c.client;
+  document.getElementById('b-challan-link').value=challanId;
+  autofillBillFromChallan();
+}
+function autofillBillFromChallan() {
+  const challanId=document.getElementById('b-challan-link').value;
+  const c=db.challans.find(x=>x.id===challanId);
+  if (!c) { document.getElementById('bill-items-preview').textContent='Select a challan to see items'; return; }
+  document.getElementById('b-client').value=c.client;
+  // Link order if challan has one
+  if (c.orderRef) {
+    document.getElementById('b-order-link').value=c.orderRef;
+    const order=db.orders.find(o=>o.id===c.orderRef);
+    if (order && !document.getElementById('b-total').value) {
+      document.getElementById('b-total').value=order.total;
+    }
+  }
+  const itemsHtml=(c.items||[]).map((it,i)=>`<div style="display:flex;gap:10px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--text-light);width:20px;">${i+1}.</span><span style="flex:1;">${it.name}</span><span class="mono">${it.qty} ${it.unit}</span></div>`).join('');
+  document.getElementById('bill-items-preview').innerHTML=itemsHtml||'No items';
+  document.getElementById('bill-items-preview').style.color='var(--text)';
+}
+function saveBill() {
+  const client=document.getElementById('b-client').value.trim();
+  const total=parseFloat(document.getElementById('b-total').value)||0;
+  if (!client||!total) { toast('Client name and amount are required','⚠'); return; }
+  const paid=parseFloat(document.getElementById('b-paid').value)||0;
+  const challanRef=document.getElementById('b-challan-link').value;
+  const orderRef=document.getElementById('b-order-link').value;
+  const payStatus=paid>=total?'Paid':paid>0?'Partial':'Unpaid';
+  const bill={
+    id:'BILL-'+nextId('bill'), client, date:document.getElementById('b-date').value||today(),
+    challanRef, orderRef, total, paid, mode:document.getElementById('b-mode').value,
+    notes:document.getElementById('b-notes').value, payStatus,
+  };
+  db.bills.push(bill);
+  if (challanRef) { const c=db.challans.find(x=>x.id===challanRef); if(c){c.billStatus='Billed';c.billRef=bill.id;} }
+  if (paid>0) db.payments.push({id:'PAY-'+Date.now(),date:bill.date,client,billRef:bill.id,amount:paid,mode:bill.mode,note:'Initial payment on bill creation'});
+  save(); closeModal('modal-bill'); renderAccBills(); renderAccChallans(); renderChallans(); updateBadges(); renderDashboardAcc();
+  toast('Bill '+bill.id+' created ✓');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PAYMENTS
+// ═══════════════════════════════════════════════════════════
+function openPaymentModal(billId) {
+  document.getElementById('p-date').value=today();
+  ['p-client','p-amount','p-note'].forEach(id=>document.getElementById(id).value='');
+  const sel=document.getElementById('p-bill-link');
+  sel.innerHTML='<option value="">— Select Bill —</option>'+db.bills.filter(b=>b.payStatus!=='Paid').map(b=>`<option value="${b.id}">${b.id} — ${b.client} (Bal: ${fmt(b.total-b.paid)})</option>`).join('');
+  if (billId) {
+    const b=db.bills.find(x=>x.id===billId);
+    if(b){document.getElementById('p-client').value=b.client;sel.value=billId;}
+  }
+  openModal('modal-payment');
+}
+function savePayment() {
+  const client=document.getElementById('p-client').value.trim();
+  const amount=parseFloat(document.getElementById('p-amount').value)||0;
+  if (!client||!amount) { toast('Client and amount required','⚠'); return; }
+  const billRef=document.getElementById('p-bill-link').value;
+  const payment={id:'PAY-'+Date.now(),date:document.getElementById('p-date').value||today(),client,billRef,amount,mode:document.getElementById('p-mode').value,note:document.getElementById('p-note').value};
+  db.payments.push(payment);
+  if (billRef) {
+    const b=db.bills.find(x=>x.id===billRef);
+    if(b){b.paid+=amount;b.payStatus=b.paid>=b.total?'Paid':b.paid>0?'Partial':'Unpaid';}
+  }
+  save(); closeModal('modal-payment'); renderAccPayments(); renderAccBills(); renderDashboardAcc();
+  toast('Payment of '+fmt(amount)+' recorded ✓');
+}
+
+// ═══════════════════════════════════════════════════════════
+// ACCOUNTS DASHBOARD
+// ═══════════════════════════════════════════════════════════
+function renderDashboardAcc() {
+  const totalBilled=db.bills.reduce((s,b)=>s+(b.total||0),0);
+  const totalReceived=db.payments.reduce((s,p)=>s+(p.amount||0),0);
+  document.getElementById('acc-stat-billed').textContent=fmt(totalBilled);
+  document.getElementById('acc-stat-recv').textContent=fmt(totalReceived);
+  document.getElementById('acc-stat-out').textContent=fmt(Math.max(0,totalBilled-totalReceived));
+  const unbilled=db.challans.filter(c=>c.billStatus==='Pending Bill');
+  document.getElementById('acc-stat-ub').textContent=unbilled.length;
+
+  // Unbilled challans table
+  const ut=document.getElementById('acc-unbilled-table');
+  if (!unbilled.length) {
+    ut.innerHTML='<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-light);">✓ All challans are billed!</td></tr>';
+  } else {
+    ut.parentElement.innerHTML=`<thead><tr><th>Challan No.</th><th>Client</th><th>Date</th><th>Items</th><th>Signed</th><th></th></tr></thead><tbody id="acc-unbilled-table">${unbilled.map(c=>`<tr>
+      <td class="mono primary">${c.id}</td><td class="primary">${c.client}</td><td>${fmtDate(c.date)}</td>
+      <td>${c.items?.length||0} item(s)</td><td>${statusBadge(c.signed?'Signed':'Not Returned')}</td>
+      <td><button class="btn btn-sm btn-primary" onclick="openBillFromChallan('${c.id}');switchAccTab('acc-bills')">Create Bill</button></td>
+    </tr>`).join('')}</tbody>`;
+  }
+
+  // Outstanding bills
+  const outstanding=db.bills.filter(b=>b.payStatus!=='Paid').sort((a,b)=>(b.total-b.paid)-(a.total-a.paid)).slice(0,8);
+  const ot=document.getElementById('acc-outstanding-table');
+  if (!outstanding.length) {
+    ot.innerHTML='<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-light);">No outstanding payments!</td></tr>';
+  } else {
+    ot.parentElement.innerHTML=`<thead><tr><th>Bill No.</th><th>Client</th><th>Date</th><th>Total</th><th>Paid</th><th>Balance</th><th></th></tr></thead><tbody id="acc-outstanding-table">${outstanding.map(b=>{
+      const bal=b.total-b.paid;
+      const pct=Math.min(100,Math.round((b.paid/b.total)*100));
+      return `<tr>
+        <td class="mono primary">${b.id}</td><td class="primary">${b.client}</td><td>${fmtDate(b.date)}</td>
+        <td class="mono">${fmt(b.total)}</td>
+        <td class="mono" style="color:var(--green);">${fmt(b.paid)}<div class="progress-bar"><div class="progress-fill ${pct>=100?'g':pct>=50?'a':'r'}" style="width:${pct}%;"></div></div></td>
+        <td class="mono" style="color:var(--red);font-weight:600;">${fmt(bal)}</td>
+        <td><button class="btn btn-sm btn-primary" onclick="openPaymentModal('${b.id}')">+ Pay</button></td>
+      </tr>`;
+    }).join('')}</tbody>`;
+  }
+  updateBadges();
+}
+
+// ═══════════════════════════════════════════════════════════
+// ACC CHALLANS TABLE
+// ═══════════════════════════════════════════════════════════
+function renderAccChallans() {
+  const search=(document.getElementById('acc-chl-search')?.value||'').toLowerCase();
+  const filter=document.getElementById('acc-chl-filter')?.value||'';
+  const rows=db.challans.filter(c=>(!search||c.client.toLowerCase().includes(search)||c.id.toLowerCase().includes(search))&&(!filter||c.billStatus===filter));
+  const tbody=document.getElementById('acc-challans-table');
+  if (!tbody) return;
+  if (!rows.length) { tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--text-light);">No challans found.</td></tr>'; return; }
+  tbody.parentElement.innerHTML=`<thead><tr><th>Challan No.</th><th>Client</th><th>Date</th><th>Order Ref</th><th>Quote Amt</th><th>Items</th><th>Signed</th><th>Bill Status</th><th></th></tr></thead><tbody id="acc-challans-table">${rows.map(c=>{
+    const order=c.orderRef?db.orders.find(o=>o.id===c.orderRef):null;
+    return `<tr>
+      <td class="mono primary">${c.id}</td>
+      <td class="primary">${c.client}</td>
+      <td>${fmtDate(c.date)}</td>
+      <td class="mono">${order?order.id+(order.qno?' / '+order.qno:''):'—'}</td>
+      <td class="mono">${order?fmt(order.total):'—'}</td>
+      <td>${c.items?.length||0} item(s)</td>
+      <td>${statusBadge(c.signed?'Signed':'Not Returned')}</td>
+      <td>${statusBadge(c.billStatus)}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-sm btn-outline" onclick="printChallan('${c.id}')">🖨</button>
+        ${!c.signed?`<button class="btn btn-sm btn-outline" onclick="openSignModal('${c.id}')">✓ Sign</button>`:''}
+        ${c.billStatus==='Pending Bill'?`<button class="btn btn-sm btn-primary" onclick="openBillFromChallan('${c.id}')">Bill</button>`:''}
+      </td>
+    </tr>`;
+  }).join('')}</tbody>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// ACC BILLS TABLE
+// ═══════════════════════════════════════════════════════════
+function renderAccBills() {
+  const search=(document.getElementById('acc-bill-search')?.value||'').toLowerCase();
+  const filter=document.getElementById('acc-bill-filter')?.value||'';
+  const rows=db.bills.filter(b=>(!search||b.client.toLowerCase().includes(search)||b.id.toLowerCase().includes(search))&&(!filter||b.payStatus===filter));
+  const tbody=document.getElementById('acc-bills-table');
+  if (!tbody) return;
+  if (!rows.length) { tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--text-light);">No bills found.</td></tr>'; return; }
+  tbody.parentElement.innerHTML=`<thead><tr><th>Bill No.</th><th>Client</th><th>Challan Ref</th><th>Date</th><th>Total</th><th>Paid</th><th>Balance</th><th>Status</th><th></th></tr></thead><tbody id="acc-bills-table">${rows.map(b=>{
+    const bal=b.total-b.paid;
+    const pct=Math.min(100,Math.round((b.paid/b.total)*100));
+    return `<tr>
+      <td class="mono primary">${b.id}</td>
+      <td class="primary">${b.client}</td>
+      <td class="mono">${b.challanRef||'—'}</td>
+      <td>${fmtDate(b.date)}</td>
+      <td class="mono">${fmt(b.total)}</td>
+      <td class="mono" style="color:var(--green);">${fmt(b.paid)}<div class="progress-bar"><div class="progress-fill ${pct>=100?'g':pct>=50?'a':'r'}" style="width:${pct}%;"></div></div></td>
+      <td class="mono" style="color:${bal>0?'var(--red)':'var(--green)'};font-weight:600;">${fmt(bal)}</td>
+      <td>${statusBadge(b.payStatus)}</td>
+      <td style="white-space:nowrap;">
+        ${b.payStatus!=='Paid'?`<button class="btn btn-sm btn-primary" onclick="openPaymentModal('${b.id}')">+ Pay</button>`:''}
+        <button class="btn btn-sm btn-outline" onclick="showPayHistory('${b.id}')">History</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteBill('${b.id}')">✕</button>
+      </td>
+    </tr>`;
+  }).join('')}</tbody>`;
+}
+function showPayHistory(billId) {
+  const b=db.bills.find(x=>x.id===billId); if(!b) return;
+  const pays=db.payments.filter(p=>p.billRef===billId);
+  document.getElementById('pay-history-title').textContent='Payments — '+b.id+' · '+b.client;
+  document.getElementById('pay-history-body').innerHTML=`
+    <div style="margin-bottom:14px;padding:12px;background:var(--cream);border-radius:var(--radius);font-size:13px;">
+      <div style="display:flex;justify-content:space-between;"><span>Total Invoiced</span><span class="mono">${fmt(b.total)}</span></div>
+      <div style="display:flex;justify-content:space-between;margin-top:5px;"><span>Total Received</span><span class="mono" style="color:var(--green);">${fmt(b.paid)}</span></div>
+      <div style="display:flex;justify-content:space-between;margin-top:5px;font-weight:700;"><span>Balance</span><span class="mono" style="color:${b.total-b.paid>0?'var(--red)':'var(--green)'};">${fmt(b.total-b.paid)}</span></div>
+    </div>
+    ${pays.length?pays.map(p=>`<div style="display:flex;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);">
+      <span style="font-size:12px;color:var(--text-light);width:80px;">${fmtDate(p.date)}</span>
+      <span style="flex:1;font-size:13px;">${statusBadge(p.mode)}</span>
+      <span class="mono" style="color:var(--green);font-weight:600;">${fmt(p.amount)}</span>
+      ${p.note?`<span style="font-size:11px;color:var(--text-light);">${p.note}</span>`:''}
+    </div>`).join(''):'<div style="color:var(--text-light);font-size:13px;padding:12px 0;">No payment records linked to this bill.</div>'}`;
+  openModal('modal-pay-history');
+}
+function deleteBill(id) {
+  if(!confirm('Delete this bill?'))return;
+  db.bills=db.bills.filter(b=>b.id!==id);
+  save();renderAccBills();renderDashboardAcc();toast('Bill deleted','🗑');
+}
+
+// ═══════════════════════════════════════════════════════════
+// ACC PAYMENTS TABLE
+// ═══════════════════════════════════════════════════════════
+function renderAccPayments() {
+  const search=(document.getElementById('acc-pay-search')?.value||'').toLowerCase();
+  const rows=[...db.payments].filter(p=>!search||p.client.toLowerCase().includes(search)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const tbody=document.getElementById('acc-payments-table');
+  if (!tbody) return;
+  if (!rows.length) { tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-light);">No payments recorded yet.</td></tr>'; return; }
+  tbody.parentElement.innerHTML=`<thead><tr><th>Date</th><th>Client</th><th>Bill Ref</th><th>Amount</th><th>Mode</th><th>Note</th></tr></thead><tbody id="acc-payments-table">${rows.map(p=>`<tr>
+    <td>${fmtDate(p.date)}</td>
+    <td class="primary">${p.client}</td>
+    <td class="mono">${p.billRef||'—'}</td>
+    <td class="mono" style="color:var(--green);font-weight:600;">${fmt(p.amount)}</td>
+    <td>${statusBadge(p.mode||'Cash')}</td>
+    <td style="color:var(--text-light);">${p.note||'—'}</td>
+  </tr>`).join('')}</tbody>`;
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// ADDITIONAL CHARGES IN QUOTATION
+// ═══════════════════════════════════════════════════════════
+function addChargeRow() {
+  const c = getClient(currentClientId); if (!c) return;
+  if (!c.charges) c.charges = [];
+  c.charges.push({ id: Date.now().toString(), label: '', amount: '' });
+  save(); renderCharges();
+}
+function removeCharge(id) {
+  const c = getClient(currentClientId); if (!c) return;
+  c.charges = (c.charges||[]).filter(x=>x.id!==id);
+  save(); renderCharges(); recalcTotals();
+}
+function updateCharge(id, key, val) {
+  const c = getClient(currentClientId); if (!c) return;
+  const ch = (c.charges||[]).find(x=>x.id===id); if (!ch) return;
+  ch[key] = val; save(); recalcTotals();
+}
+function renderCharges() {
+  const c = getClient(currentClientId);
+  const charges = c ? (c.charges||[]) : [];
+  const container = document.getElementById('q-charges-list');
+  if (!container) return;
+  if (!charges.length) {
+    container.innerHTML = '<div style="font-size:11px;color:var(--mid);font-style:italic;">No additional charges. Click "+ Add Charge" to add transport, labour, etc.</div>';
+    return;
+  }
+  container.innerHTML = charges.map(ch => `
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:7px;">
+      <input type="text" value="${(ch.label||'').replace(/"/g,'&quot;')}" placeholder="e.g. Transport / Labour" oninput="updateCharge('${ch.id}','label',this.value)" style="flex:1;background:var(--dark3);border:1px solid var(--mid);color:var(--cream);border-radius:4px;padding:5px 8px;font-size:12px;"/>
+      <span style="color:var(--text-light);font-size:12px;">₹</span>
+      <input type="number" value="${ch.amount||''}" placeholder="0" oninput="updateCharge('${ch.id}','amount',this.value)" style="width:90px;background:var(--dark3);border:1px solid var(--mid);color:var(--cream);border-radius:4px;padding:5px 8px;font-size:12px;"/>
+      <button onclick="removeCharge('${ch.id}')" style="background:none;border:1px solid var(--red);color:var(--red);border-radius:4px;padding:3px 7px;cursor:pointer;font-size:11px;">✕</button>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PENDING QUOTATIONS (Sales View)
+// ═══════════════════════════════════════════════════════════
+function renderPendingQuotes() {
+  const search = (document.getElementById('pq-search')?.value||'').toLowerCase();
+  // Clients with quote rows but no confirmed order
+  const pending = db.clients.filter(c => {
+    const hasItems = c.quoteRows && c.quoteRows.length > 0;
+    const hasOrder = db.orders.some(o => o.clientId === c.id);
+    return hasItems && !hasOrder && (!search || c.name.toLowerCase().includes(search) || (c.quoteNo||'').toLowerCase().includes(search));
+  });
+  const tbody = document.getElementById('pending-quotes-table');
+  if (!tbody) return;
+  if (!pending.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-light);">🎉 No pending quotations! All quotes have been converted to orders.</td></tr>';
+    return;
+  }
+  tbody.parentElement.innerHTML = `<thead><tr><th>Quote No.</th><th>Client</th><th>Project</th><th>Items</th><th>Quote Total</th><th>Actions</th></tr></thead><tbody id="pending-quotes-table">${pending.map(c => {
+    const sub = (c.quoteRows||[]).reduce((s,r)=>s+(parseFloat(r.qty)||0)*(parseFloat(r.discPrice)||parseFloat(r.mrp)||0),0);
+    return `<tr>
+      <td class="mono primary">${c.quoteNo||'—'}</td>
+      <td class="primary">${c.name}</td>
+      <td style="color:var(--text-light);">${c.project||'—'}</td>
+      <td>${(c.quoteRows||[]).length} item(s)</td>
+      <td class="mono">${sub?'₹'+Math.round(sub).toLocaleString('en-IN'):'—'}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-sm btn-outline" onclick="selectClient('${c.id}');switchTab('quotation')">View Quote</button>
+        <button class="btn btn-sm btn-primary" onclick="selectClient('${c.id}');switchTab('quotation');setTimeout(createOrderFromQuote,300)">→ Convert</button>
+      </td>
+    </tr>`;
+  }).join('')}</tbody>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// ACCOUNTS QUOTATIONS VIEW (Read-Only + Comments)
+// ═══════════════════════════════════════════════════════════
+function renderAccQuotations() {
+  const search = (document.getElementById('acc-qt-search')?.value||'').toLowerCase();
+  const clients = db.clients.filter(c => (c.quoteRows&&c.quoteRows.length>0) && (!search||c.name.toLowerCase().includes(search)||(c.quoteNo||'').toLowerCase().includes(search)));
+  const tbody = document.getElementById('acc-quotations-table');
+  if (!tbody) return;
+  if (!clients.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-light);">No quotations found.</td></tr>';
+    return;
+  }
+  tbody.parentElement.innerHTML = `<thead><tr><th>Quote No.</th><th>Client</th><th>Project</th><th>Date</th><th>Items</th><th>Quote Total</th><th>Actions</th></tr></thead><tbody id="acc-quotations-table">${clients.map(c => {
+    const sub = (c.quoteRows||[]).reduce((s,r)=>s+(parseFloat(r.qty)||0)*(parseFloat(r.discPrice)||parseFloat(r.mrp)||0),0);
+    const comments = (c.quoteComments||[]).length;
+    const hasOrder = db.orders.some(o=>o.clientId===c.id);
+    return `<tr>
+      <td class="mono primary">${c.quoteNo||'—'}</td>
+      <td class="primary">${c.name}</td>
+      <td style="color:var(--text-light);">${c.project||'—'}</td>
+      <td>${c.date?fmtDate(c.date):'—'}</td>
+      <td>${(c.quoteRows||[]).length} item(s)</td>
+      <td class="mono">${sub?'₹'+Math.round(sub).toLocaleString('en-IN'):'—'}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-sm btn-outline" onclick="viewQuoteAcc('${c.id}')">📄 View${comments?` (${comments} 💬)`:''}</button>
+        ${hasOrder?'<span class="badge badge-green" style="margin-left:4px;">Ordered</span>':'<span class="badge badge-amber" style="margin-left:4px;">Pending</span>'}
+      </td>
+    </tr>`;
+  }).join('')}</tbody>`;
+}
+
+let viewingQuoteClientId = null;
+function viewQuoteAcc(clientId) {
+  const c = getClient(clientId); if (!c) return;
+  viewingQuoteClientId = clientId;
+  document.getElementById('vq-modal-title').textContent = 'Quotation — ' + (c.quoteNo||'—') + ' · ' + c.name;
+  // Details
+  document.getElementById('vq-details').innerHTML = `
+    <div style="display:flex;flex-wrap:wrap;gap:20px;font-size:13px;">
+      <div><div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text-light);margin-bottom:3px;">Client</div><div style="font-weight:600;">${c.name}</div></div>
+      ${c.phone?`<div><div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text-light);margin-bottom:3px;">Phone</div><div>${c.phone}</div></div>`:''}
+      ${c.project?`<div><div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text-light);margin-bottom:3px;">Project</div><div>${c.project}</div></div>`:''}
+      <div><div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text-light);margin-bottom:3px;">Quote No.</div><div class="mono" style="color:var(--gold);">${c.quoteNo||'—'}</div></div>
+    </div>`;
+  // Table
+  const rows = c.quoteRows||[];
+  document.getElementById('vq-table-wrap').innerHTML = rows.length ? `
+    <table class="data-table">
+      <thead><tr><th>#</th><th>Product</th><th>Size</th><th>Qty</th><th>Unit</th><th>MRP</th><th>Our Price</th><th>Amount</th></tr></thead>
+      <tbody>${rows.map((r,i)=>{
+        const amt=(parseFloat(r.qty)||0)*(parseFloat(r.discPrice)||parseFloat(r.mrp)||0);
+        return `<tr>
+          <td style="color:var(--text-light);">${i+1}</td>
+          <td class="primary">${r.image?`<img src="${r.image}" style="width:30px;height:30px;object-fit:cover;border-radius:3px;vertical-align:middle;margin-right:6px;">`:''}${r.name}</td>
+          <td>${r.size||'—'}</td>
+          <td class="mono">${r.qty||'—'}</td>
+          <td>${r.qtyType||'box'}</td>
+          <td class="mono">${r.mrp?'₹'+parseFloat(r.mrp).toLocaleString('en-IN'):'—'}</td>
+          <td class="mono" style="color:var(--green);">${r.discPrice?'₹'+parseFloat(r.discPrice).toLocaleString('en-IN'):'—'}</td>
+          <td class="mono" style="font-weight:600;">${amt?'₹'+amt.toLocaleString('en-IN'):'—'}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>` : '<div style="color:var(--text-light);padding:16px;">No items.</div>';
+  // Totals
+  const sub=rows.reduce((s,r)=>s+(parseFloat(r.qty)||0)*(parseFloat(r.discPrice)||parseFloat(r.mrp)||0),0);
+  const charges = c.charges||[];
+  const chargesTotal = charges.reduce((s,ch)=>s+(parseFloat(ch.amount)||0),0);
+  const grandTotal = sub + chargesTotal;
+  let totalsHtml = `<div style="font-size:12px;display:flex;flex-direction:column;gap:6px;">
+    <div style="display:flex;justify-content:space-between;"><span>Subtotal</span><span class="mono">₹${sub.toLocaleString('en-IN')}</span></div>`;
+  charges.forEach(ch=>{ if(ch.label&&ch.amount) totalsHtml+=`<div style="display:flex;justify-content:space-between;"><span>${ch.label}</span><span class="mono">₹${parseFloat(ch.amount).toLocaleString('en-IN')}</span></div>`; });
+  totalsHtml += `<div style="display:flex;justify-content:space-between;border-top:1px solid var(--gold);margin-top:4px;padding-top:6px;font-size:16px;color:var(--gold);font-family:'Cormorant Garamond',serif;"><span>Grand Total</span><span class="mono">₹${Math.round(grandTotal).toLocaleString('en-IN')}</span></div></div>`;
+  document.getElementById('vq-totals').innerHTML = totalsHtml;
+  // Comments
+  renderQuoteComments(clientId);
+  openModal('modal-view-quote');
+}
+function renderQuoteComments(clientId) {
+  const c = getClient(clientId); if (!c) return;
+  const comments = c.quoteComments||[];
+  document.getElementById('vq-comments-list').innerHTML = comments.length ? comments.map(cm=>`
+    <div style="display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);">
+      <div style="width:32px;height:32px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;flex-shrink:0;">A</div>
+      <div>
+        <div style="font-size:11px;color:var(--text-light);margin-bottom:3px;">Accounts · ${fmtDate(cm.date)}</div>
+        <div style="font-size:13px;color:var(--text);">${cm.text}</div>
+      </div>
+    </div>`).join('') : '<div style="font-size:12px;color:var(--text-light);padding:8px 0;">No comments yet.</div>';
+  document.getElementById('vq-new-comment').value='';
+}
+function addQuoteComment() {
+  const c = getClient(viewingQuoteClientId); if (!c) return;
+  const text = document.getElementById('vq-new-comment').value.trim();
+  if (!text) { toast('Enter a comment','⚠'); return; }
+  if (!c.quoteComments) c.quoteComments = [];
+  c.quoteComments.push({ id: Date.now().toString(), date: today(), text });
+  save(); renderQuoteComments(viewingQuoteClientId); renderAccQuotations();
+  toast('Comment added ✓');
+}
+
+// ═══════════════════════════════════════════════════════════
+// ACC ORDERS — Orders Without Challan
+// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// ACC ORDERS TABLE
+// ═══════════════════════════════════════════════════════════
+function renderAccOrders() {
+  // Render orders without challan
+  const noChallanOrders = db.orders.filter(o=>!db.challans.some(c=>c.orderRef===o.id));
+  const nct = document.getElementById('acc-orders-no-challan-table');
+  if (nct) {
+    if (!noChallanOrders.length) {
+      nct.innerHTML='<tr><td colspan="6" style="text-align:center;padding:18px;color:var(--text-light);">✓ All orders have challans raised.</td></tr>';
+    } else {
+      nct.parentElement.innerHTML=`<thead><tr><th>Order ID</th><th>Client</th><th>Quote Ref</th><th>Order Date</th><th>Quote Total</th><th>Status</th></tr></thead><tbody id="acc-orders-no-challan-table">${noChallanOrders.map(o=>`<tr>
+        <td class="mono primary">${o.id}</td>
+        <td class="primary">${o.client}</td>
+        <td class="mono">${o.qno||'—'}</td>
+        <td>${fmtDate(o.date)}</td>
+        <td class="mono">${fmt(o.total)}</td>
+        <td>${statusBadge(o.status)} <span style="color:var(--red);font-size:11px;margin-left:4px;">⚠ No Challan</span></td>
+      </tr>`).join('')}</tbody>`;
+    }
+  }
+  const search=(document.getElementById('acc-ord-search')?.value||'').toLowerCase();
+  const rows=db.orders.filter(o=>!search||o.client.toLowerCase().includes(search)||o.id.toLowerCase().includes(search));
+  const tbody=document.getElementById('acc-orders-table');
+  if (!tbody) return;
+  if (!rows.length) { tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--text-light);">No orders yet.</td></tr>'; return; }
+  tbody.parentElement.innerHTML=`<thead><tr><th>Order ID</th><th>Client</th><th>Quote Ref</th><th>Date</th><th>Quote Total</th><th>Advance</th><th>Adv. Mode</th><th>Balance Due</th><th>Status</th></tr></thead><tbody id="acc-orders-table">${rows.map(o=>{
+    const bal=o.total-o.advance;
+    const bills=db.bills.filter(b=>b.orderRef===o.id);
+    const totalBilled=bills.reduce((s,b)=>s+(b.total||0),0);
+    return `<tr>
+      <td class="mono primary">${o.id}</td>
+      <td class="primary">${o.client}</td>
+      <td class="mono">${o.qno||'—'}</td>
+      <td>${fmtDate(o.date)}</td>
+      <td class="mono">${fmt(o.total)}</td>
+      <td class="mono" style="color:var(--green);">${fmt(o.advance)}</td>
+      <td>${statusBadge(o.advMode||'—')}</td>
+      <td class="mono" style="color:${bal>0?'var(--red)':'var(--green)'};">${fmt(bal)}</td>
+      <td>${statusBadge(o.status)}</td>
+    </tr>`;
+  }).join('')}</tbody>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function toast(msg, icon='✓') {
+  const t=document.createElement('div'); t.className='toast';
+  t.innerHTML=`<span>${icon}</span><span>${msg}</span>`;
+  document.getElementById('toast-wrap').appendChild(t);
+  setTimeout(()=>t.remove(),3500);
+}
+
+// ═══════════════════════════════════════════════════════════
+// GOOGLE AUTH — ALTERNATIVE: If no Client ID, try GIS popup
+// ═══════════════════════════════════════════════════════════
+// Since we can't embed a real OAuth client ID without server config,
+// we provide a fallback that uses the email-verified popup approach
+// with a message about setting up properly.
+
+// Check if Google GSI loaded
+window.addEventListener('load', () => {
+  // If Google accounts not available (no internet), go offline
+  setTimeout(() => {
+    if (!window.google) {
+      // No internet or blocked — load from localStorage directly
+      document.getElementById('auth-screen').innerHTML = `
+        <div class="brand">Casa De Aurum</div>
+        <div class="tagline">Tiles &amp; Designer Surfaces · Bhopal</div>
+        <div class="auth-box">
+          <div class="auth-title">Offline / Local Mode</div>
+          <div class="auth-sub">Google sign-in is unavailable (no internet or script blocked).<br>Proceeding with locally saved data.</div>
+          <button class="g-signin-btn" style="background:#C9A96E;color:#1A1714;font-weight:700;" onclick="onAuthSuccessOffline()">Continue with Local Data</button>
+          <div class="auth-note">Note: Data will only be saved on this device.<br>For cross-device sync, ensure internet access.</div>
+        </div>`;
+    }
+  }, 3000);
+});
+
+// ── IMPORTANT: For full Google Drive sync ──────────────────────────────────────
+// You need to:
+// 1. Go to https://console.cloud.google.com
+// 2. Create a project → Enable "Google Drive API" + "Google Identity"
+// 3. Create OAuth 2.0 credentials (Web App) with your domain as authorized origin
+// 4. Replace getClientId() return value with your actual Client ID
+// 5. In Drive API scope, use 'drive.appdata' for private app storage
+//
+// ALTERNATIVELY — simpler approach below: use Google account sign-in for identity
+// verification only, and use localStorage + manual export/import for data sync.
+// ──────────────────────────────────────────────────────────────────────────────
+
+// Override: simpler auth flow for immediate use
+// This verifies the Google account email address without needing Drive setup
+function handleGoogleSignIn() {
+  if (!window.google || !window.google.accounts) {
+    toast('Google not loaded — using offline mode','⚠');
+    onAuthSuccessOffline();
+    return;
+  }
+  // Use ID token approach for email verification
+  const client = google.accounts.id.initialize({
+    client_id: '1042226939195-9u1s83u6jkl1s9qh9o0qmkr1b3f9r6e3.apps.googleusercontent.com',
+    callback: handleCredentialResponse,
+    auto_select: false,
+  });
+  google.accounts.id.prompt((notification) => {
+    if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+      // Prompt not shown — fallback
+      onAuthSuccessOffline();
+    }
+  });
+}
+
+function handleCredentialResponse(response) {
+  // Decode JWT to get email
+  try {
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    if (payload.email !== AUTHORIZED_EMAIL) {
+      showAuthErr('⚠ Access denied. Only ' + AUTHORIZED_EMAIL + ' is allowed.');
+      return;
+    }
+    gUser = payload;
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app').classList.remove('hidden');
+    document.getElementById('user-name').textContent = payload.name || payload.email;
+    if (payload.picture) { const av=document.getElementById('user-avatar'); av.src=payload.picture; av.style.display='block'; }
+    setSyncStatus('ok', 'Signed in · local storage sync');
+    initApp();
+    // Note: Without Drive API token, data saved locally only
+    // Full Drive sync requires OAuth token setup (see instructions above)
+  } catch(e) {
+    onAuthSuccessOffline();
+  }
+}
+
+// Export/Import for manual cross-device sync (backup until Drive is configured)
+function exportData() {
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='casa_de_aurum_data_'+today()+'.json';
+  a.click();
+  toast('Data exported ✓');
+}
+function importData() {
+  const input=document.createElement('input'); input.type='file'; input.accept='.json';
+  input.onchange=e=>{
+    const f=e.target.files[0]; if(!f) return;
+    const r=new FileReader();
+    r.onload=ev=>{try{db=JSON.parse(ev.target.result);save();refreshAllViews();toast('Data imported ✓');}catch(err){toast('Invalid file','⚠');}};
+    r.readAsText(f);
+  };
+  input.click();
+}
+</script>
+
+<!-- Data Sync Helper Buttons (shown in sync bar) -->
+<script>
+// Add export/import buttons to sync bar after DOM loads
+document.addEventListener('DOMContentLoaded', () => {
+  const bar = document.getElementById('sync-bar');
+  if (bar) {
+    const btns = document.createElement('div');
+    btns.style.cssText = 'display:flex;gap:6px;margin-left:12px;';
+    btns.innerHTML = `
+      <button onclick="exportData()" style="background:none;border:1px solid #4A4440;color:#7A706A;padding:2px 8px;border-radius:4px;font-size:10px;cursor:pointer;font-family:Outfit,sans-serif;" title="Export all data as JSON">⬇ Export</button>
+      <button onclick="importD
