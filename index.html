@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Casa De Aurum — Unified CRM & Accounts</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-<!-- Google Identity + Drive API -->
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://apis.google.com/js/api.js" async defer></script>
+<!-- No external auth scripts needed -->
 <!-- pptxgenjs -->
 <script>
 (function(){const urls=['https://unpkg.com/pptxgenjs@3.12.0/dist/pptxgen.bundle.js','https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js'];let i=0;function t(){if(i>=urls.length){window._pptxLoadFailed=true;return;}const s=document.createElement('script');s.src=urls[i++];s.onload=()=>{window._pptxLoaded=true;};s.onerror=t;document.head.appendChild(s);}t();})();
@@ -25,18 +23,20 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Outfit',sans-serif;background:var(--warm);color:var(--text);font-size:14px;min-height:100vh;}
 
-/* ── GOOGLE AUTH SCREEN ── */
+/* ── AUTH SCREEN ── */
 #auth-screen{position:fixed;inset:0;background:var(--dark);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;}
 #auth-screen .brand{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;letter-spacing:6px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;}
 #auth-screen .tagline{font-size:11px;letter-spacing:3px;color:var(--text-light);text-transform:uppercase;margin-bottom:48px;}
 #auth-screen .auth-box{background:var(--dark2);border:1px solid var(--dark3);border-radius:12px;padding:36px 40px;text-align:center;max-width:380px;width:90%;}
 #auth-screen .auth-title{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);margin-bottom:8px;}
-#auth-screen .auth-sub{font-size:12px;color:var(--text-light);margin-bottom:28px;line-height:1.7;}
+#auth-screen .auth-sub{font-size:12px;color:var(--text-light);margin-bottom:24px;line-height:1.7;}
 #auth-screen .auth-note{font-size:11px;color:var(--mid);margin-top:20px;line-height:1.6;}
 #auth-screen .auth-err{color:#e07870;font-size:12px;margin-top:12px;display:none;}
-.g-signin-btn{display:flex;align-items:center;gap:10px;background:white;color:#333;border:none;border-radius:6px;padding:11px 22px;font-size:14px;font-weight:500;cursor:pointer;margin:0 auto;transition:box-shadow 0.2s;}
-.g-signin-btn:hover{box-shadow:0 2px 10px rgba(0,0,0,0.2);}
-.g-signin-btn img{width:20px;height:20px;}
+#auth-screen .auth-input{width:100%;padding:10px 14px;background:var(--dark3);border:1px solid var(--mid);border-radius:6px;color:var(--cream);font-size:13px;font-family:'Outfit',sans-serif;outline:none;margin-bottom:10px;transition:border 0.2s;}
+#auth-screen .auth-input:focus{border-color:var(--gold);}
+#auth-screen .auth-input::placeholder{color:var(--mid);}
+.signin-btn{width:100%;padding:11px 22px;background:var(--gold);color:var(--dark);border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;letter-spacing:0.5px;transition:background 0.2s;margin-top:4px;}
+.signin-btn:hover{background:#B8914A;}
 
 /* ── SYNC STATUS BAR ── */
 #sync-bar{background:var(--dark2);border-bottom:1px solid var(--dark3);padding:4px 20px;display:flex;align-items:center;gap:10px;font-size:11px;color:var(--text-light);}
@@ -215,6 +215,17 @@ textarea{resize:vertical;min-height:60px;}
 .cp-sig-box{text-align:center;}
 .cp-sig-line{border-top:1px solid #aaa;margin-top:44px;padding-top:6px;font-size:11px;color:#777;}
 
+/* ── AI SEARCH RESULT TILES ── */
+.ai-img-result{width:100px;border:2px solid transparent;border-radius:6px;overflow:hidden;cursor:pointer;background:var(--cream2);transition:all 0.15s;flex-shrink:0;}
+.ai-img-result:hover,.ai-img-result.selected{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-dim);}
+.ai-img-result img{width:100%;height:80px;object-fit:cover;display:block;}
+.ai-img-result-label{font-size:9px;padding:3px 4px;color:var(--text);line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+/* ── VENDOR DISPATCH POPUP ── */
+#vendor-popup{position:fixed;bottom:24px;right:24px;z-index:9000;background:var(--dark2);border:1px solid var(--gold-dim);border-radius:10px;padding:16px 20px;min-width:300px;box-shadow:0 8px 32px rgba(0,0,0,0.5);animation:tIn 0.3s ease;}
+#vendor-popup .vp-title{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold);margin-bottom:4px;}
+#vendor-popup .vp-sub{font-size:11px;color:var(--text-light);margin-bottom:14px;}
+/* ── COVERAGE BADGE ── */
+.coverage-hint{font-size:10px;color:var(--gold);background:var(--dark2);border-radius:3px;padding:2px 5px;cursor:help;}
 /* ── UTILS ── */
 .hidden{display:none!important;}
 .flex{display:flex;}.gap-8{gap:8px;}.gap-12{gap:12px;}.mt-12{margin-top:12px;}.mt-16{margin-top:16px;}
@@ -233,31 +244,12 @@ textarea{resize:vertical;min-height:60px;}
 <!-- ═══════════════════════════════════════════════════════
      AUTH SCREEN
 ════════════════════════════════════════════════════════ -->
-<div id="auth-screen">
-  <div class="brand">Casa De Aurum</div>
-  <div class="tagline">Tiles &amp; Designer Surfaces · Bhopal</div>
-  <div class="auth-box">
-    <div class="auth-title">Unified CRM &amp; Accounts</div>
-    <div class="auth-sub">
-      Sign in with the authorised Google account.<br>
-      Your data syncs live across all devices.
-    </div>
-    <button class="g-signin-btn" onclick="handleGoogleSignIn()">
-      <img src="https://www.google.com/favicon.ico" alt="G"/>
-      Sign in with Google
-    </button>
-    <div class="auth-err" id="auth-err">⚠ Access restricted to <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f59480878098978599b59298949c99db969a98">[email&#160;protected]</a></div>
-    <div class="auth-note">
-      Only <strong style="color:var(--gold-light)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6d0c181f18000f1d012d0a000c0401430e0200">[email&#160;protected]</a></strong> is authorised.<br>
-      Data is stored securely in your Google Drive.
-    </div>
-  </div>
-</div>
+<!-- auth screen removed -->
 
 <!-- ═══════════════════════════════════════════════════════
      APP (hidden until auth)
 ════════════════════════════════════════════════════════ -->
-<div id="app" class="hidden">
+
 
 <!-- SYNC BAR -->
 <div id="sync-bar">
@@ -279,6 +271,8 @@ textarea{resize:vertical;min-height:60px;}
   </div>
   <div style="display:flex;align-items:center;gap:10px;">
     <span class="role-badge" id="role-badge-el">Sales</span>
+    <button class="btn btn-sm" style="font-size:11px;background:var(--dark2);border-color:var(--mid);color:var(--text-light);" onclick="openCalculator()">📐 Calc</button>
+    <button class="btn btn-sm" style="font-size:11px;background:var(--dark2);border-color:var(--mid);color:var(--text-light);" onclick="openManageVendors()">🏭 Vendors</button>
     <button class="btn btn-sm" id="role-switch-btn" style="font-size:11px;background:var(--dark2);border-color:var(--mid);color:var(--text-light);" onclick="switchRole()">Switch View</button>
   </div>
 </div>
@@ -327,12 +321,40 @@ textarea{resize:vertical;min-height:60px;}
           <!-- Add Tile Selection -->
           <div class="card">
             <div class="card-title">Add Tile Selection</div>
-            <div class="form-row">
-              <div class="form-group"><label>Tile / Product Name</label><input type="text" id="new-tile-name" placeholder="e.g. Carrara White Matt 600×1200"/></div>
-              <div class="form-group"><label>Company / Brand</label><input type="text" id="new-tile-brand" placeholder="e.g. Kajaria, Nitco, RAK"/></div>
+            <!-- AI Image Search bar -->
+            <div style="background:linear-gradient(135deg,#1A1714,#252220);border:1px solid var(--gold-dim);border-radius:var(--radius);padding:12px 14px;margin-bottom:12px;">
+              <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;font-weight:600;">🔍 AI Tile Image Search</div>
+              <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+                <input type="text" id="ai-search-query" placeholder="Type tile name e.g. Carrara White Matt 600x1200…" style="flex:1;min-width:180px;background:var(--dark3);border:1px solid var(--mid);color:var(--cream);"/>
+                <button class="btn btn-primary btn-sm" onclick="doTextSearch()">🔍 Search Images</button>
+                <button class="btn btn-outline btn-sm" onclick="document.getElementById('ai-photo-upload').click()">📷 Search by Photo</button>
+                <input type="file" id="ai-photo-upload" accept="image/*" style="display:none;" onchange="doPhotoSearch(this)"/>
+              </div>
+              <div style="font-size:10px;color:var(--text-light);margin-bottom:6px;">Or drag & drop / paste a rough photo below for AI visual match</div>
+              <div id="ai-search-results" style="display:none;margin-top:10px;">
+                <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text-light);margin-bottom:8px;" id="ai-results-label">Results</div>
+                <div id="ai-results-grid" style="display:flex;flex-wrap:wrap;gap:8px;max-height:260px;overflow-y:auto;"></div>
+              </div>
+              <div id="ai-search-loading" style="display:none;color:var(--gold);font-size:12px;padding:8px 0;">⏳ Searching…</div>
             </div>
             <div class="form-row">
-              <div class="form-group"><label>Size</label><input type="text" id="new-tile-size" placeholder="600×1200 mm"/></div>
+              <div class="form-group"><label>Tile / Product Name</label><input type="text" id="new-tile-name" placeholder="e.g. Carrara White Matt 600×1200"/></div>
+              <div class="form-group">
+                <label>Company / Brand <button onclick="openManageBrands()" style="background:none;border:none;color:var(--gold);font-size:10px;cursor:pointer;padding:0 0 0 6px;">+ Manage</button></label>
+                <div style="display:flex;gap:6px;">
+                  <input type="text" id="new-tile-brand" placeholder="Type or select brand…" list="brand-datalist" style="flex:1;"/>
+                  <datalist id="brand-datalist"></datalist>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Size <button onclick="openManageSizes()" style="background:none;border:none;color:var(--gold);font-size:10px;cursor:pointer;padding:0 0 0 6px;">+ Manage</button></label>
+                <div style="display:flex;gap:6px;">
+                  <input type="text" id="new-tile-size" placeholder="Select or type size…" list="size-datalist" style="flex:1;" oninput="onTileSizeInput(this.value)"/>
+                  <datalist id="size-datalist"></datalist>
+                </div>
+              </div>
               <div class="form-group"><label>MRP per Box (₹)</label><input type="number" id="new-tile-mrp" placeholder="0"/></div>
               <div class="form-group"><label>Room / Area</label>
                 <select id="new-tile-room">
@@ -398,9 +420,9 @@ textarea{resize:vertical;min-height:60px;}
             <div style="overflow-x:auto;">
               <table class="quote-table" id="quote-items-table">
                 <thead><tr>
-                  <th style="width:36px;">#</th><th style="width:46px;">Img</th><th>Product Name</th><th style="width:85px;">Size</th>
-                  <th style="width:75px;">Unit</th><th style="width:65px;">Qty</th><th style="width:85px;">MRP (₹)</th>
-                  <th style="width:85px;">Our Price (₹)</th><th style="width:80px;">Amount</th><th style="width:32px;"></th>
+                  <th style="width:32px;">#</th><th style="width:46px;">Img</th><th>Product Name</th><th style="width:80px;">Size</th>
+                  <th style="width:70px;">Unit</th><th style="width:55px;">Qty</th><th style="width:78px;">MRP (₹)</th>
+                  <th style="width:78px;">Our Price</th><th style="width:68px;">Disc%</th><th style="width:70px;">Coverage</th><th style="width:76px;">Amount</th><th style="width:32px;"></th>
                 </tr></thead>
                 <tbody id="quote-rows"></tbody>
               </table>
@@ -601,6 +623,175 @@ textarea{resize:vertical;min-height:60px;}
 
 </div><!-- /app -->
 
+
+<!-- MANAGE BRANDS MODAL -->
+<div class="modal-overlay" id="modal-brands">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header"><div class="modal-title">Manage Tile Brands</div><button class="modal-close" onclick="closeModal('modal-brands')">×</button></div>
+    <div class="modal-body">
+      <div style="font-size:12px;color:var(--text-light);margin-bottom:12px;">Add brands you stock. They'll appear as quick-select options when adding tiles.</div>
+      <div id="brands-list" style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:6px;"></div>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="new-brand-input" placeholder="e.g. Kajaria, RAK, Nitco…" style="flex:1;" onkeydown="if(event.key==='Enter')addBrand()"/>
+        <button class="btn btn-primary" onclick="addBrand()">+ Add</button>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-outline" onclick="closeModal('modal-brands')">Done</button></div>
+  </div>
+</div>
+
+<!-- MANAGE SIZES MODAL -->
+<div class="modal-overlay" id="modal-sizes">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header"><div class="modal-title">Manage Tile Sizes & Coverage</div><button class="modal-close" onclick="closeModal('modal-sizes')">×</button></div>
+    <div class="modal-body">
+      <div style="font-size:12px;color:var(--text-light);margin-bottom:14px;">Add tile sizes with thickness and coverage data. This powers the coverage calculator and autofill in quotations.</div>
+      <table class="data-table" style="font-size:12px;margin-bottom:12px;">
+        <thead><tr><th>Size</th><th>Thickness</th><th>Coverage (sqft/box)</th><th></th></tr></thead>
+        <tbody id="sizes-table-body"></tbody>
+      </table>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;">
+        <div style="flex:1;min-width:110px;"><label style="font-size:10px;color:var(--text-light);">Size (e.g. 600×1200 mm)</label><input type="text" id="ns-size" placeholder="600×1200 mm"/></div>
+        <div style="width:90px;"><label style="font-size:10px;color:var(--text-light);">Thickness</label><input type="text" id="ns-thick" placeholder="9 mm"/></div>
+        <div style="width:100px;"><label style="font-size:10px;color:var(--text-light);">Coverage (sqft)</label><input type="number" id="ns-cov" placeholder="15.5" step="0.1"/></div>
+        <button class="btn btn-primary" onclick="addSizeEntry()">+ Add</button>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-outline" onclick="closeModal('modal-sizes')">Done</button></div>
+  </div>
+</div>
+
+<!-- TILE COVERAGE CALCULATOR MODAL -->
+<div class="modal-overlay" id="modal-calculator">
+  <div class="modal" style="max-width:600px;">
+    <div class="modal-header"><div class="modal-title">📐 Tile Coverage — Brand & Size Reference</div><button class="modal-close" onclick="closeModal('modal-calculator')">×</button></div>
+    <div class="modal-body">
+      <div style="font-size:12px;color:var(--text-light);margin-bottom:16px;line-height:1.7;">
+        Coverage here is <strong>per box only</strong> — manually set per brand + size + thickness combination. When a tile's brand and size match an entry below, coverage auto-fills in quotations.
+      </div>
+
+      <!-- Coverage Entries Table -->
+      <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;font-weight:600;">Coverage Entries</div>
+      <div style="overflow-x:auto;margin-bottom:16px;">
+        <table class="data-table" style="font-size:12px;" id="cov-entries-table">
+          <thead><tr><th>Brand</th><th>Size</th><th>Thickness</th><th>Coverage / Box</th><th></th></tr></thead>
+          <tbody id="cov-entries-body"></tbody>
+        </table>
+      </div>
+
+      <!-- Add New Entry -->
+      <div style="border:1px solid var(--border);border-radius:var(--radius);padding:14px;background:var(--cream);">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gold);margin-bottom:10px;font-weight:600;">+ Add Coverage Entry</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Brand</label>
+            <input type="text" id="cov-brand" placeholder="e.g. Kajaria" list="brand-datalist"/>
+          </div>
+          <div class="form-group">
+            <label>Size</label>
+            <input type="text" id="cov-size" placeholder="e.g. 600×1200 mm" list="size-datalist"/>
+          </div>
+          <div class="form-group" style="max-width:110px;">
+            <label>Thickness</label>
+            <input type="text" id="cov-thick" placeholder="e.g. 9 mm"/>
+          </div>
+          <div class="form-group" style="max-width:130px;">
+            <label>Coverage (sqft/box)</label>
+            <input type="number" id="cov-sqft" placeholder="e.g. 15.5" step="0.01" min="0.1"/>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="addCovEntry()">+ Add Entry</button>
+      </div>
+
+      <!-- Quick Lookup -->
+      <div style="margin-top:18px;">
+        <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;font-weight:600;">Quick Lookup</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;">
+          <div style="flex:1;min-width:140px;"><label style="font-size:10px;color:var(--text-light);">Brand</label><input type="text" id="lk-brand" list="brand-datalist" placeholder="Brand name" oninput="updateLookup()"/></div>
+          <div style="flex:1;min-width:140px;"><label style="font-size:10px;color:var(--text-light);">Size</label><input type="text" id="lk-size" list="size-datalist" placeholder="Tile size" oninput="updateLookup()"/></div>
+        </div>
+        <div id="lk-result" style="margin-top:10px;display:none;background:var(--dark);color:var(--cream);border-radius:var(--radius);padding:14px 18px;">
+          <div id="lk-result-inner"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-outline" onclick="closeModal('modal-calculator')">Close</button></div>
+  </div>
+</div>
+
+<!-- VENDOR DISPATCH MODAL -->
+<div class="modal-overlay" id="modal-vendor-dispatch">
+  <div class="modal modal-lg">
+    <div class="modal-header"><div class="modal-title">📦 Send Order to Vendor</div><button class="modal-close" onclick="closeModal('modal-vendor-dispatch')">×</button></div>
+    <div class="modal-body">
+      <div style="font-size:12px;color:var(--text-light);margin-bottom:16px;" id="vd-order-summary"></div>
+      <div class="div-label">Select Vendor & Channel</div>
+      <div class="form-row">
+        <div class="form-group"><label>Vendor / Company</label>
+          <select id="vd-vendor" onchange="onVendorSelect()" style="width:100%;"><option value="">-- Select Vendor --</option></select>
+        </div>
+        <div class="form-group"><label>Channel</label>
+          <select id="vd-channel" style="width:100%;"><option value="whatsapp">WhatsApp</option><option value="gmail">Gmail</option></select>
+        </div>
+      </div>
+      <div style="background:var(--cream);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:12px;" id="vd-vendor-info"></div>
+      <div class="div-label">Order Message Preview</div>
+      <textarea id="vd-message" style="min-height:180px;font-family:monospace;font-size:12px;"></textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-vendor-dispatch')">Later</button>
+      <button class="btn btn-primary" style="background:#25D366;border-color:#25D366;" onclick="sendViaWhatsApp()">📱 Send WhatsApp</button>
+      <button class="btn btn-primary" style="background:#d44638;border-color:#d44638;" onclick="sendViaGmail()">📧 Send Gmail</button>
+    </div>
+  </div>
+</div>
+
+<!-- MANAGE VENDORS MODAL -->
+<div class="modal-overlay" id="modal-vendors">
+  <div class="modal modal-lg" style="max-width:680px;">
+    <div class="modal-header"><div class="modal-title">Manage Vendors / Suppliers</div><button class="modal-close" onclick="closeModal('modal-vendors')">×</button></div>
+    <div class="modal-body">
+      <!-- Tab switcher -->
+      <div style="display:flex;gap:0;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;">
+        <button id="vt-list-btn" onclick="switchVendorTab('list')" style="flex:1;padding:8px 0;font-size:12px;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;border:none;background:var(--gold);color:var(--dark);font-weight:600;font-family:Outfit,sans-serif;">📋 All Vendors</button>
+        <button id="vt-add-btn" onclick="switchVendorTab('add')" style="flex:1;padding:8px 0;font-size:12px;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;border:none;background:var(--cream2);color:var(--text-light);font-family:Outfit,sans-serif;">+ Add New</button>
+      </div>
+
+      <!-- ALL VENDORS LIST TAB -->
+      <div id="vt-list">
+        <div id="vendors-list" style="max-height:420px;overflow-y:auto;"></div>
+        <div id="vt-empty" style="display:none;text-align:center;padding:30px;color:var(--text-light);">
+          <div style="font-size:24px;margin-bottom:8px;">🏭</div>
+          <div>No vendors added yet.</div>
+          <button class="btn btn-primary" style="margin-top:12px;" onclick="switchVendorTab('add')">+ Add First Vendor</button>
+        </div>
+      </div>
+
+      <!-- ADD VENDOR TAB -->
+      <div id="vt-add" style="display:none;">
+        <div style="border:1px solid var(--border);border-radius:var(--radius);padding:16px;background:var(--cream);">
+          <div id="vt-add-title" style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gold);margin-bottom:12px;font-weight:600;">Add New Vendor</div>
+          <input type="hidden" id="nv-edit-idx" value=""/>
+          <div class="form-row">
+            <div class="form-group"><label>Company / Brand Name *</label><input type="text" id="nv-name" placeholder="e.g. Kajaria Ceramics"/></div>
+            <div class="form-group"><label>Contact Person</label><input type="text" id="nv-contact" placeholder="Name"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>WhatsApp Number</label><input type="text" id="nv-wa" placeholder="91XXXXXXXXXX"/></div>
+            <div class="form-group"><label>Email</label><input type="text" id="nv-email" placeholder="orders@vendor.com"/></div>
+          </div>
+          <div class="form-row"><div class="form-group full"><label>Order Instructions</label><textarea id="nv-notes" placeholder="e.g. Send order on WhatsApp group, mention client name and site address…"></textarea></div></div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" id="nv-save-btn" onclick="saveVendor()">+ Add Vendor</button>
+            <button class="btn btn-outline" id="nv-cancel-btn" style="display:none;" onclick="cancelVendorEdit()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-outline" onclick="closeModal('modal-vendors')">Done</button></div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast-wrap" id="toast-wrap"></div>
 
@@ -642,7 +833,7 @@ textarea{resize:vertical;min-height:60px;}
       </div>
       <div class="form-row">
         <div class="form-group"><label>Challan Date</label><input type="date" id="ch-date"/></div>
-        <div class="form-group"><label>Linked Order / Quote Ref <span style="color:var(--gold);font-size:9px;">Challan No. = Quote No.</span></label><select id="ch-order-link" style="width:100%;"><option value="">— None —</option></select></div>
+        <div class="form-group"><label>Linked Order / Quote Ref <span style="color:var(--gold);font-size:9px;">Challan No. = Quote No.</span></label><div style="display:flex;gap:6px;"><select id="ch-order-link" style="flex:1;" onchange="autofillChallanFromOrder()"><option value="">— None —</option></select><button class="btn btn-sm btn-dark" onclick="autofillChallanFromOrder()" title="Auto-fill items from quotation">⚡ Autofill</button></div></div>
       </div>
       <div class="div-label">Items Being Dispatched</div>
       <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
@@ -831,205 +1022,40 @@ textarea{resize:vertical;min-height:60px;}
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // ═══════════════════════════════════════════════════════════
-// GOOGLE IDENTITY & DRIVE SYNC
-// ═══════════════════════════════════════════════════════════
-const AUTHORIZED_EMAIL = 'aurumbpl@gmail.com';
-const CLIENT_ID = ''; // Left blank - uses popup sign-in flow; works without OAuth client ID for basic identity
-const DRIVE_FILE_NAME = 'casa_de_aurum_crm_data.json';
-const SCOPES = 'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.file';
-
-let gTokenClient = null;
-let gAccessToken = null;
-let gDriveFileId = null;
-let gUser = null;
-let currentRole = 'sales'; // 'sales' | 'accounts'
+// AUTH REMOVED — auto-init on load
+let currentRole = 'sales';
 let syncTimeout = null;
 
-// ── Auth flow using Google Identity Services ──────────────────
-function handleGoogleSignIn() {
-  // We use GIS token model since we need Drive API access too
-  if (!window.google || !window.google.accounts) {
-    toast('Google auth not loaded yet. Please wait a moment and try again.', '⚠');
-    return;
-  }
-  gTokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: getClientId(),
-    scope: SCOPES,
-    callback: onTokenResponse,
-    hint: AUTHORIZED_EMAIL,
-  });
-  gTokenClient.requestAccessToken({ prompt: 'consent' });
-}
-
-function getClientId() {
-  // Embedded client ID - works for the specific origin
-  // For production, replace with your actual OAuth 2.0 client ID
-  return '1042226939195-9u1s83u6jkl1s9qh9o0qmkr1b3f9r6e3.apps.googleusercontent.com';
-}
-
-function onTokenResponse(resp) {
-  if (resp.error) {
-    showAuthErr('Sign-in failed: ' + resp.error);
-    return;
-  }
-  gAccessToken = resp.access_token;
-  // Get user info to verify email
-  fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-    headers: { Authorization: 'Bearer ' + gAccessToken }
-  }).then(r => r.json()).then(info => {
-    if (info.email !== AUTHORIZED_EMAIL) {
-      showAuthErr(`⚠ Access denied. Only ${AUTHORIZED_EMAIL} is allowed.`);
-      gAccessToken = null;
-      return;
-    }
-    gUser = info;
-    onAuthSuccess();
-  }).catch(() => {
-    // If userinfo fails, try to proceed (for local/offline use)
-    onAuthSuccessOffline();
-  });
-}
-
-function onAuthSuccess() {
-  document.getElementById('auth-screen').style.display = 'none';
-  document.getElementById('app').classList.remove('hidden');
-  document.getElementById('user-name').textContent = gUser.name || gUser.email;
-  if (gUser.picture) {
-    const av = document.getElementById('user-avatar');
-    av.src = gUser.picture; av.style.display = 'block';
-  }
-  setSyncStatus('connecting', 'Connecting to Google Drive…');
-  initDrive();
-}
-
-function onAuthSuccessOffline() {
-  // Fallback: allow access but use localStorage only
-  document.getElementById('auth-screen').style.display = 'none';
-  document.getElementById('app').classList.remove('hidden');
-  setSyncStatus('err', 'Offline mode — data saved locally only');
+document.addEventListener('DOMContentLoaded', function() {
+  const userNameEl = document.getElementById('user-name');
+  if (userNameEl) userNameEl.textContent = 'Admin';
+  setSyncStatus('ok', 'Local storage');
   initApp();
-}
+});
 
-function showAuthErr(msg) {
-  const el = document.getElementById('auth-err');
-  el.textContent = msg; el.style.display = 'block';
-  setTimeout(() => el.style.display = 'none', 5000);
-}
+function handleLogin() {} // stub — no longer used
 
 function confirmSignOut() {
   if (!confirm('Sign out?')) return;
-  if (window.google && google.accounts && google.accounts.oauth2) {
-    google.accounts.oauth2.revoke(gAccessToken, () => {});
-  }
   location.reload();
 }
 
-// ── Google Drive ───────────────────────────────────────────────
-async function initDrive() {
-  try {
-    // Find or create app data file
-    const res = await driveRequest('GET',
-      `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name='${DRIVE_FILE_NAME}'&fields=files(id,name,modifiedTime)`);
-    const files = res.files || [];
-    if (files.length > 0) {
-      gDriveFileId = files[0].id;
-      // Load data from Drive
-      const content = await driveDownload(gDriveFileId);
-      if (content) {
-        try {
-          const parsed = JSON.parse(content);
-          // Merge with local (Drive wins)
-          db = parsed;
-          saveLocal();
-        } catch(e) {}
-      }
-    }
-    setSyncStatus('ok', 'Synced with Google Drive');
-    initApp();
-  } catch(e) {
-    console.warn('Drive init error:', e);
-    setSyncStatus('err', 'Drive offline — using local data');
-    initApp();
-  }
-}
-
-async function driveRequest(method, url, body) {
-  const opts = {
-    method,
-    headers: { Authorization: 'Bearer ' + gAccessToken, 'Content-Type': 'application/json' },
-  };
-  if (body) opts.body = JSON.stringify(body);
-  const r = await fetch(url, opts);
-  if (!r.ok) throw new Error(r.status);
-  return r.json();
-}
-
-async function driveDownload(fileId) {
-  const r = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
-    headers: { Authorization: 'Bearer ' + gAccessToken }
-  });
-  if (!r.ok) return null;
-  return r.text();
-}
-
-async function driveSave() {
-  if (!gAccessToken) { saveLocal(); return; }
-  const content = JSON.stringify(db);
-  const metadata = { name: DRIVE_FILE_NAME, parents: gDriveFileId ? undefined : ['appDataFolder'] };
-  try {
-    let r;
-    if (gDriveFileId) {
-      // Update existing
-      const form = new FormData();
-      form.append('metadata', new Blob([JSON.stringify({})], { type: 'application/json' }));
-      form.append('file', new Blob([content], { type: 'application/json' }));
-      r = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${gDriveFileId}?uploadType=multipart`, {
-        method: 'PATCH',
-        headers: { Authorization: 'Bearer ' + gAccessToken },
-        body: form,
-      });
-    } else {
-      // Create new
-      const form = new FormData();
-      form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-      form.append('file', new Blob([content], { type: 'application/json' }));
-      r = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-        method: 'POST',
-        headers: { Authorization: 'Bearer ' + gAccessToken },
-        body: form,
-      });
-      if (r.ok) {
-        const j = await r.json();
-        gDriveFileId = j.id;
-      }
-    }
-    if (r.ok) {
-      saveLocal();
-      setSyncStatus('ok', 'Saved · ' + new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }));
-    } else {
-      setSyncStatus('err', 'Drive save failed — saved locally');
-      saveLocal();
-    }
-  } catch(e) {
-    setSyncStatus('err', 'Drive offline — saved locally');
-    saveLocal();
-  }
-}
-
 function setSyncStatus(state, msg) {
-  const dot = document.getElementById('sync-dot');
+  var dot = document.getElementById('sync-dot');
   dot.className = 'sync-dot' + (state === 'ok' ? ' ok' : state === 'err' ? ' err' : '');
   document.getElementById('sync-label').textContent = msg;
 }
 
-// Debounced save — waits 1.5s after last change then saves to Drive
 function save() {
   saveLocal();
   clearTimeout(syncTimeout);
   setSyncStatus('connecting', 'Saving…');
-  syncTimeout = setTimeout(driveSave, 1500);
+  syncTimeout = setTimeout(function() {
+    saveLocal();
+    setSyncStatus('ok', 'Saved · ' + new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }));
+  }, 800);
 }
 
 function saveLocal() {
@@ -1115,28 +1141,6 @@ function initApp() {
   document.querySelectorAll('.modal-overlay').forEach(o => {
     o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
   });
-  setInterval(pollDriveUpdates, 30000); // Poll Drive every 30s for other users' changes
-}
-
-async function pollDriveUpdates() {
-  if (!gAccessToken || !gDriveFileId) return;
-  try {
-    const res = await driveRequest('GET',
-      `https://www.googleapis.com/drive/v3/files/${gDriveFileId}?fields=modifiedTime`);
-    const mod = new Date(res.modifiedTime).getTime();
-    const lastMod = parseInt(localStorage.getItem('cda_last_drive_mod') || '0');
-    if (mod > lastMod) {
-      localStorage.setItem('cda_last_drive_mod', mod.toString());
-      const content = await driveDownload(gDriveFileId);
-      if (content) {
-        const parsed = JSON.parse(content);
-        db = parsed;
-        saveLocal();
-        refreshAllViews();
-        setSyncStatus('ok', 'Updated · ' + new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' }));
-      }
-    }
-  } catch(e) {}
 }
 
 function refreshAllViews() {
@@ -1370,24 +1374,40 @@ function renderQuotation() {
   if (!c.tcList) c.tcList = ['Delivery within 14 to 25 working days from order confirmation.','50% advance payment required at the time of order booking.','Goods once sold will not be taken back.','Breakage during transit is not our responsibility.','Price valid for 7 days from the date of this quotation.'];
   renderTC();
 }
-function rowAmtNum(r) { return (parseFloat(r.qty)||0) * (parseFloat(r.discPrice)||parseFloat(r.mrp)||0); }
+function rowEffPrice(r) {
+  const base = parseFloat(r.discPrice)||parseFloat(r.mrp)||0;
+  const itemDisc = parseFloat(r.itemDisc)||0;
+  return base * (1 - itemDisc/100);
+}
+function rowAmtNum(r) { return (parseFloat(r.qty)||0) * rowEffPrice(r); }
 function rowAmt(r) { const a=rowAmtNum(r); return a?'₹'+a.toLocaleString('en-IN'):'—'; }
 function renderQuoteRows() {
   const tbody = document.getElementById('quote-rows');
-  if (!quoteRows.length) { tbody.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--text-light);padding:20px;">No items. Click "+ Add Row" or "Import from Selection".</td></tr>'; recalcTotals(); return; }
-  tbody.innerHTML = quoteRows.map((r,i) => `
-    <tr>
+  if (!quoteRows.length) { tbody.innerHTML='<tr><td colspan="12" style="text-align:center;color:var(--text-light);padding:20px;">No items. Click "+ Add Row" or "Import from Selection".</td></tr>'; recalcTotals(); return; }
+  tbody.innerHTML = quoteRows.map((r,i) => {
+    const effPrice = rowEffPrice(r);
+    const coverageHint = (typeof getCoverageForTile==='function') ? getCoverageForTile(r.brand||r.name||'', r.size||'') : getCoverageHint(r.size);
+    return `<tr>
       <td style="color:var(--text-light);font-size:11px;">${i+1}</td>
-      <td>${r.image?`<img class="tile-thumb-sm" src="${r.image}">`:'<div style="width:36px;height:36px;background:var(--cream2);border-radius:3px;"></div>'}</td>
-      <td><input type="text" value="${esc(r.name)}" oninput="updateRow(${i},'name',this.value)" placeholder="Product name"/></td>
-      <td><input type="text" value="${esc(r.size)}" oninput="updateRow(${i},'size',this.value)" placeholder="Size"/></td>
+      <td>
+        <div style="position:relative;width:36px;">
+          ${r.image?`<img class="tile-thumb-sm" src="${r.image}" style="cursor:pointer;" onclick="changeRowImage(${i})" title="Click to change image">`:`<div style="width:36px;height:36px;background:var(--cream2);border-radius:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-light);" onclick="changeRowImage(${i})" title="Click to add image">+</div>`}
+          ${r.image?`<button onclick="removeRowImage(${i})" title="Remove image" style="position:absolute;top:-5px;right:-5px;width:14px;height:14px;border-radius:50%;background:var(--red);color:white;border:none;font-size:9px;cursor:pointer;line-height:1;padding:0;display:flex;align-items:center;justify-content:center;">×</button>`:''}
+        </div>
+        <input type="file" id="row-img-${i}" accept="image/*" style="display:none;" onchange="applyRowImage(${i},this)"/>
+      </td>
+      <td><input type="text" value="${esc(r.name)}" oninput="updateRow(${i},'name',this.value)" placeholder="Product name" list="brand-datalist"/></td>
+      <td><input type="text" value="${esc(r.size)}" oninput="updateRow(${i},'size',this.value)" placeholder="Size" list="size-datalist" style="width:70px;"/>${coverageHint?`<div class="coverage-hint" title="${coverageHint}">${coverageHint}</div>`:''}</td>
       <td><div class="qty-toggle"><button class="${r.qtyType==='box'?'active':''}" onclick="setQtyType(${i},'box')">Box</button><button class="${r.qtyType==='pcs'?'active':''}" onclick="setQtyType(${i},'pcs')">Pcs</button></div></td>
-      <td><input type="number" value="${r.qty||''}" oninput="updateRow(${i},'qty',this.value)" placeholder="0" min="0" style="width:55px;"/></td>
-      <td><input type="number" value="${r.mrp||''}" oninput="updateRow(${i},'mrp',this.value)" placeholder="0" min="0"/></td>
-      <td><input type="number" value="${r.discPrice||''}" oninput="updateRow(${i},'discPrice',this.value)" placeholder="0" min="0"/></td>
-      <td style="font-weight:600;">${rowAmt(r)}</td>
+      <td><input type="number" value="${r.qty||''}" oninput="updateRow(${i},'qty',this.value)" placeholder="0" min="0" style="width:50px;"/></td>
+      <td><input type="number" value="${r.mrp||''}" oninput="updateRow(${i},'mrp',this.value)" placeholder="0" min="0" style="width:70px;"/></td>
+      <td><input type="number" value="${r.discPrice||''}" oninput="updateRow(${i},'discPrice',this.value)" placeholder="0" min="0" style="width:70px;"/></td>
+      <td><input type="number" value="${r.itemDisc||''}" oninput="updateRow(${i},'itemDisc',this.value)" placeholder="0" min="0" max="100" style="width:55px;" title="Item-level discount %"/><span style="font-size:10px;color:var(--text-light);">%</span></td>
+      <td><input type="text" value="${r.coverage||''}" oninput="updateRow(${i},'coverage',this.value)" placeholder="${coverageHint||'sqft'}" style="width:65px;" title="Coverage per box (editable)"/></td>
+      <td style="font-weight:600;white-space:nowrap;">${rowAmt(r)}</td>
       <td><button class="btn btn-danger" style="padding:3px 6px;font-size:12px;" onclick="removeRow(${i})">✕</button></td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
   recalcTotals();
 }
 function updateRow(i,key,val) { quoteRows[i][key]=val; saveQuoteRows(); recalcTotals(); const tds=document.getElementById('quote-rows').rows[i].cells; tds[8].textContent=rowAmt(quoteRows[i]); }
@@ -1525,36 +1545,233 @@ async function exportPPT() {
   const c = getClient(currentClientId); if (!c) { toast('Select a client first','⚠'); return; }
   if (window._pptxLoadFailed || !window.PptxGenJS) { exportSlideImages(c); return; }
   try {
-    const pres = new PptxGenJS(); const BRAND='Casa De Aurum', DARK='1A1714', GOLD='C9A96E', LIGHT='E8D5B0', TAGLINE='Tiles & Designer Surfaces · Bhopal', SW=10, SH=5.63;
-    // Title slide
-    const title=pres.addSlide(); title.background={color:DARK};
-    title.addShape(pres.ShapeType.rect,{x:0,y:0,w:0.07,h:SH,fill:{color:GOLD}});
-    title.addShape(pres.ShapeType.rect,{x:SW-0.07,y:0,w:0.07,h:SH,fill:{color:GOLD}});
-    title.addText(BRAND,{x:0.6,y:1.4,w:SW-1.2,h:1.4,fontSize:52,fontFace:'Georgia',color:GOLD,bold:false,align:'center',valign:'middle'});
-    title.addShape(pres.ShapeType.rect,{x:3.5,y:3.05,w:3,h:0.02,fill:{color:GOLD}});
-    title.addText(TAGLINE,{x:0.6,y:3.2,w:SW-1.2,h:0.5,fontSize:13,color:LIGHT,align:'center'});
-    title.addText(c.name,{x:0.6,y:3.9,w:SW-1.2,h:0.5,fontSize:18,color:GOLD,bold:true,align:'center'});
-    const sels=c.selections||[], rooms=[...new Set(sels.map(t=>t.room||'General'))];
+    const pres = new PptxGenJS();
+    const BRAND='Casa De Aurum', TAGLINE='Tiles & Designer Surfaces · Bhopal';
+    const DARK='1A1714', DARK2='252220', DARK3='302C29';
+    const GOLD='C9A96E', GOLD2='B8914A', GOLD_PALE='E8D5B0';
+    const CREAM='F5F0E8', MID='4A4440', LIGHT='EDE6D8';
+    const SW=13.33, SH=7.5; // 16:9 widescreen
+
+    pres.layout = 'LAYOUT_WIDE';
+
+    // ── TITLE SLIDE ──────────────────────────────────────
+    const title = pres.addSlide();
+    title.background = {color: DARK};
+    // Gold side bars
+    title.addShape(pres.ShapeType.rect,{x:0,y:0,w:0.12,h:SH,fill:{color:GOLD}});
+    title.addShape(pres.ShapeType.rect,{x:SW-0.12,y:0,w:0.12,h:SH,fill:{color:GOLD}});
+    // Top accent line
+    title.addShape(pres.ShapeType.rect,{x:0.12,y:0,w:SW-0.24,h:0.06,fill:{color:GOLD2}});
+    // Bottom accent line
+    title.addShape(pres.ShapeType.rect,{x:0.12,y:SH-0.06,w:SW-0.24,h:0.06,fill:{color:GOLD2}});
+    // Center decorative rule
+    title.addShape(pres.ShapeType.rect,{x:4.5,y:3.55,w:4.33,h:0.03,fill:{color:GOLD}});
+    // Brand name
+    title.addText(BRAND, {
+      x:1, y:1.6, w:SW-2, h:1.5,
+      fontSize:62, fontFace:'Georgia', color:GOLD,
+      bold:false, align:'center', valign:'middle', charSpacing:8
+    });
+    // Tagline
+    title.addText(TAGLINE, {
+      x:1, y:3.65, w:SW-2, h:0.5,
+      fontSize:14, fontFace:'Calibri', color:GOLD_PALE,
+      align:'center', charSpacing:4
+    });
+    // Client name
+    title.addText('Prepared for: ' + c.name, {
+      x:1, y:4.5, w:SW-2, h:0.6,
+      fontSize:20, fontFace:'Calibri', color:GOLD,
+      align:'center', bold:true
+    });
+    // Date
+    title.addText(new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}), {
+      x:1, y:5.3, w:SW-2, h:0.4,
+      fontSize:12, color:MID, align:'center'
+    });
+
+    const sels = c.selections||[];
+    const rooms = [...new Set(sels.map(t=>t.room||'General'))];
+
     for (const room of rooms) {
-      const tiles=sels.filter(t=>(t.room||'General')===room);
-      const slide=pres.addSlide(); slide.background={color:DARK};
-      slide.addText(room,{x:0.4,y:0.18,w:SW-0.8,h:0.6,fontSize:22,fontFace:'Georgia',color:GOLD,align:'left',valign:'middle'});
-      slide.addShape(pres.ShapeType.rect,{x:0.4,y:0.76,w:SW-0.8,h:0.02,fill:{color:GOLD}});
-      const n=tiles.length, cols=Math.min(n,4), cardW=(SW-0.8)/cols, cardH=SH-1.3, LY=0.9;
-      for (let i=0;i<n;i++){
-        const t=tiles[i], col=i%cols, cx=0.4+col*cardW;
-        if (t.image && t.image.startsWith('data:image')) { try { slide.addImage({data:t.image,x:cx+0.05,y:LY,w:cardW-0.1,h:cardH*0.7}); } catch(e){} }
-        const LABEL_H=cardH*0.32;
-        slide.addText(t.name,{x:cx+0.05,y:LY+cardH*0.7+0.06,w:cardW-0.1,h:LABEL_H*0.5,fontSize:n<=2?13:10,color:LIGHT,align:'left',valign:'top'});
-        if(t.size||t.mrp){slide.addText([t.size,t.mrp?'₹'+t.mrp+'/box':''].filter(Boolean).join('  ·  '),{x:cx+0.05,y:LY+cardH*0.7+0.06+LABEL_H*0.52,w:cardW-0.1,h:LABEL_H*0.42,fontSize:n<=2?11:9,color:GOLD,align:'left',valign:'middle'});}
+      const tiles = sels.filter(t=>(t.room||'General')===room);
+      const n = tiles.length;
+
+      // Decide layout based on count
+      // 1 tile: large single card centered
+      // 2 tiles: 2 columns
+      // 3 tiles: 3 columns
+      // 4+ tiles: up to 4 per slide, paginate
+      const COLS = n===1?1 : n===2?2 : n<=4?n<=3?3:4 : 4;
+      const tilesPerSlide = COLS;
+      const pages = Math.ceil(n/tilesPerSlide);
+
+      for (let pg=0; pg<pages; pg++) {
+        const pageTiles = tiles.slice(pg*tilesPerSlide, (pg+1)*tilesPerSlide);
+        const slide = pres.addSlide();
+        slide.background = {color: DARK};
+
+        // Side gold bars
+        slide.addShape(pres.ShapeType.rect,{x:0,y:0,w:0.1,h:SH,fill:{color:GOLD}});
+        slide.addShape(pres.ShapeType.rect,{x:SW-0.1,y:0,w:0.1,h:SH,fill:{color:GOLD}});
+        // Bottom gold bar
+        slide.addShape(pres.ShapeType.rect,{x:0.1,y:SH-0.18,w:SW-0.2,h:0.18,fill:{color:DARK3}});
+
+        // Room header background band
+        slide.addShape(pres.ShapeType.rect,{x:0.1,y:0,w:SW-0.2,h:0.95,fill:{color:DARK2}});
+        // Gold underline
+        slide.addShape(pres.ShapeType.rect,{x:0.1,y:0.95,w:SW-0.2,h:0.04,fill:{color:GOLD}});
+
+        // Room title
+        slide.addText(room.toUpperCase(), {
+          x:0.3, y:0.1, w:SW-0.6, h:0.75,
+          fontSize:24, fontFace:'Georgia', color:GOLD,
+          align:'left', valign:'middle', charSpacing:5
+        });
+        // Page indicator
+        if (pages>1) {
+          slide.addText(`${pg+1}/${pages}`, {
+            x:SW-1.5, y:0.2, w:1.2, h:0.5,
+            fontSize:12, color:MID, align:'right'
+          });
+        }
+
+        // Card layout
+        const MARGIN_X = 0.25;
+        const CONTENT_X = 0.1 + MARGIN_X;
+        const CONTENT_W = SW - 0.2 - MARGIN_X*2;
+        const CONTENT_Y = 1.1;
+        const CONTENT_H = SH - 1.1 - 0.28;
+        const nc = pageTiles.length;
+        const cellW = CONTENT_W / nc;
+        const CARD_PAD = 0.12;
+
+        for (let i=0; i<nc; i++) {
+          const t = pageTiles[i];
+          const cx = CONTENT_X + i*cellW;
+          const cardX = cx + CARD_PAD;
+          const cardW = cellW - CARD_PAD*2;
+          const cardH = CONTENT_H;
+
+          // Card background
+          slide.addShape(pres.ShapeType.rect,{
+            x:cardX, y:CONTENT_Y, w:cardW, h:cardH,
+            fill:{color:DARK2}, line:{color:MID, w:0.75}
+          });
+          // Gold top accent on card
+          slide.addShape(pres.ShapeType.rect,{
+            x:cardX, y:CONTENT_Y, w:cardW, h:0.05,
+            fill:{color:GOLD}
+          });
+
+          // Image area — fills most of card, fixed aspect ratio
+          const IMG_PADDING = 0.12;
+          const INFO_H = nc<=2 ? 1.4 : 1.1; // info strip height at bottom
+          const imgX = cardX + IMG_PADDING;
+          const imgY = CONTENT_Y + 0.12;
+          const imgW = cardW - IMG_PADDING*2;
+          const imgH = cardH - INFO_H - 0.2;
+
+          if (t.image && t.image.startsWith('data:image')) {
+            // Image with cover sizing — fills box, not stretched
+            try {
+              slide.addImage({
+                data: t.image,
+                x: imgX, y: imgY, w: imgW, h: imgH,
+                sizing: {type:'cover', w:imgW, h:imgH}
+              });
+              // Subtle gold border around image
+              slide.addShape(pres.ShapeType.rect,{
+                x:imgX, y:imgY, w:imgW, h:imgH,
+                fill:{type:'none'}, line:{color:GOLD2, w:1.2}
+              });
+            } catch(e) {
+              slide.addShape(pres.ShapeType.rect,{x:imgX,y:imgY,w:imgW,h:imgH,fill:{color:DARK3}});
+              slide.addText('Image Error',{x:imgX,y:imgY+imgH/2-0.2,w:imgW,h:0.4,fontSize:10,color:MID,align:'center'});
+            }
+          } else {
+            // Placeholder
+            slide.addShape(pres.ShapeType.rect,{
+              x:imgX, y:imgY, w:imgW, h:imgH,
+              fill:{color:DARK3}, line:{color:MID, w:0.5}
+            });
+            slide.addText('No Image', {
+              x:imgX, y:imgY+imgH/2-0.2, w:imgW, h:0.4,
+              fontSize:11, color:MID, align:'center', italic:true
+            });
+          }
+
+          // Info strip at bottom of card
+          const infoY = CONTENT_Y + cardH - INFO_H + 0.08;
+          // Tile name
+          const tileName = t.name || 'Unnamed Tile';
+          slide.addText(tileName, {
+            x:cardX+0.1, y:infoY, w:cardW-0.2, h:nc<=2?0.55:0.42,
+            fontSize:nc<=2?13:10, fontFace:'Georgia', color:CREAM,
+            align:'center', valign:'middle', bold:false,
+            wrap:true
+          });
+
+          // Size · Brand line
+          const sizeBrand = [t.size, t.brand].filter(Boolean).join('  ·  ');
+          if (sizeBrand) {
+            slide.addText(sizeBrand, {
+              x:cardX+0.1, y:infoY+(nc<=2?0.55:0.42), w:cardW-0.2, h:0.3,
+              fontSize:nc<=2?10:8, color:GOLD, align:'center', charSpacing:1
+            });
+          }
+
+          // Coverage line
+          const cov = getCoverageForTile(t.brand||'', t.size||'');
+          if (cov) {
+            slide.addText('Coverage: '+cov, {
+              x:cardX+0.1, y:infoY+(nc<=2?0.85:0.72), w:cardW-0.2, h:0.28,
+              fontSize:nc<=2?9:8, color:GOLD_PALE, align:'center', italic:true
+            });
+          }
+
+          // Price
+          if (t.mrp) {
+            slide.addText('₹'+t.mrp+'/box', {
+              x:cardX+0.1, y:CONTENT_Y+cardH-0.28, w:cardW-0.2, h:0.26,
+              fontSize:nc<=2?11:9, color:GOLD, align:'center', bold:true
+            });
+          }
+        }
+
+        // Footer
+        slide.addText(BRAND + '  ·  ' + TAGLINE, {
+          x:0.2, y:SH-0.22, w:SW-0.4, h:0.2,
+          fontSize:8, color:MID, align:'center', charSpacing:2
+        });
       }
-      slide.addShape(pres.ShapeType.rect,{x:0,y:SH-0.1,w:SW,h:0.1,fill:{color:GOLD}});
     }
-    const end=pres.addSlide(); end.background={color:DARK};
-    end.addText('Thank You',{x:0.6,y:2.2,w:SW-1.2,h:1.6,fontSize:60,fontFace:'Georgia',color:GOLD,align:'center',valign:'middle'});
-    end.addText(BRAND,{x:0.6,y:4.2,w:SW-1.2,h:0.6,fontSize:16,color:LIGHT,align:'center',italic:true});
-    await pres.writeFile({fileName:`${c.name.replace(/\s+/g,'_')}_CasaDiAurum.pptx`});
-  } catch(e) { exportSlideImages(c); }
+
+    // ── END SLIDE ──────────────────────────────────────
+    const end = pres.addSlide();
+    end.background = {color: DARK};
+    end.addShape(pres.ShapeType.rect,{x:0,y:0,w:0.12,h:SH,fill:{color:GOLD}});
+    end.addShape(pres.ShapeType.rect,{x:SW-0.12,y:0,w:0.12,h:SH,fill:{color:GOLD}});
+    end.addShape(pres.ShapeType.rect,{x:0.12,y:0,w:SW-0.24,h:0.06,fill:{color:GOLD2}});
+    end.addShape(pres.ShapeType.rect,{x:0.12,y:SH-0.06,w:SW-0.24,h:0.06,fill:{color:GOLD2}});
+    end.addShape(pres.ShapeType.rect,{x:4.5,y:3.4,w:4.33,h:0.03,fill:{color:GOLD}});
+    end.addText('Thank You', {
+      x:1, y:2.0, w:SW-2, h:1.8,
+      fontSize:72, fontFace:'Georgia', color:GOLD,
+      align:'center', valign:'middle', charSpacing:6
+    });
+    end.addText(BRAND, {
+      x:1, y:4.1, w:SW-2, h:0.6,
+      fontSize:16, color:GOLD_PALE, align:'center', italic:true, charSpacing:5
+    });
+    end.addText(TAGLINE, {
+      x:1, y:4.75, w:SW-2, h:0.4,
+      fontSize:11, color:MID, align:'center', charSpacing:3
+    });
+
+    await pres.writeFile({fileName:`${c.name.replace(/\s+/g,'_')}_CasaDeAurum.pptx`});
+    toast('Presentation exported ✓');
+  } catch(e) { console.error(e); exportSlideImages(c); }
 }
 function exportSlideImages(c) {
   const sels=c.selections||[], rooms=[...new Set(sels.map(t=>t.room||'General'))];
@@ -1594,6 +1811,7 @@ function saveOrder() {
   if (order.clientId) { const cl=getClient(order.clientId); if(cl) cl.hasOrder=true; save(); }
   save(); closeModal('modal-order'); renderOrders(); renderClientList(); updateBadges();
   toast('Order '+order.id+' saved ✓');
+  showVendorPopup(order);
 }
 function renderOrders() {
   const search=(document.getElementById('ord-search')?.value||'').toLowerCase();
@@ -1614,6 +1832,8 @@ function renderOrders() {
       <td>${statusBadge(o.status)}</td>
       <td style="white-space:nowrap;">
         <button class="btn btn-sm btn-outline" onclick="editOrderStatus('${o.id}')">Edit</button>
+        <button class="btn btn-sm" style="background:#25D366;color:white;border-color:#25D366;" onclick="showVendorPopup(db.orders.find(x=>x.id==='${o.id}'))">📱</button>
+        <button class="btn btn-sm" style="background:#d44638;color:white;border-color:#d44638;" onclick="sendOrderEmail('${o.id}')">📧</button>
         <button class="btn btn-sm btn-danger" onclick="deleteOrder('${o.id}')">✕</button>
       </td>
     </tr>`;
@@ -1634,14 +1854,39 @@ function deleteOrder(id) {
 // ═══════════════════════════════════════════════════════════
 // CHALLANS (Sales)
 // ═══════════════════════════════════════════════════════════
-function openChallanModal() {
+function openChallanModal(prefillOrderId) {
   ['ch-client','ch-phone','ch-address'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('ch-date').value=today();
   document.getElementById('ch-items').innerHTML='';
-  // populate order link
   const sel=document.getElementById('ch-order-link');
   sel.innerHTML='<option value="">— None —</option>'+db.orders.map(o=>`<option value="${o.id}">${o.id} — ${o.client} (${o.qno||'no ref'})</option>`).join('');
+  if (prefillOrderId) { sel.value=prefillOrderId; autofillChallanFromOrder(); }
   openModal('modal-challan');
+}
+function autofillChallanFromOrder() {
+  const orderId=document.getElementById('ch-order-link').value;
+  if (!orderId) return;
+  const o=db.orders.find(x=>x.id===orderId); if (!o) return;
+  document.getElementById('ch-client').value=o.client||'';
+  document.getElementById('ch-phone').value=o.phone||'';
+  document.getElementById('ch-address').value=o.address||'';
+  // Populate items from order's selected products or client quotation
+  const items = document.getElementById('ch-items');
+  items.innerHTML='';
+  const prods = o.selectedProducts || (()=>{
+    const cl=db.clients.find(c=>c.id===o.clientId);
+    return cl?(cl.quoteRows||[]):[];
+  })();
+  if (prods.length) {
+    prods.forEach(p=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td><label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" checked style="width:14px;height:14px;accent-color:var(--gold);"/><input type="text" value="${(p.name||'').replace(/"/g,"&quot;")}" style="flex:1;"/></label></td><td><input type="number" value="${p.qty||1}" style="width:60px;"/></td><td><select style="width:80px;"><option ${p.qtyType==='box'?'selected':''}>Box</option><option ${p.qtyType==='pcs'?'selected':''}>Piece</option><option>Set</option><option>Sqft</option></select></td><td><button class="btn btn-danger" style="padding:2px 6px;" onclick="this.closest('tr').remove()">✕</button></td>`;
+      items.appendChild(tr);
+    });
+    toast("Items autofilled from quotation — uncheck any you don't want to dispatch","✓");
+  } else {
+    addChallanItem();
+  }
 }
 function addChallanItem() {
   const tr=document.createElement('tr');
@@ -1651,8 +1896,15 @@ function addChallanItem() {
 function collectChallanItems() {
   return Array.from(document.querySelectorAll('#ch-items tr')).map(tr=>{
     const ins=tr.querySelectorAll('input,select');
-    return {name:ins[0].value,qty:ins[1].value,unit:ins[2].value};
-  }).filter(i=>i.name.trim());
+    const cb=tr.querySelector('input[type=checkbox]');
+    if (cb && !cb.checked) return null;
+    // find text inputs
+    const textInputs=Array.from(ins).filter(x=>x.type==='text'||x.type==='number');
+    const nameInput=Array.from(ins).find(x=>x.type==='text'&&x!==cb);
+    const qtyInput=Array.from(ins).find(x=>x.type==='number');
+    const unitSel=tr.querySelector('select');
+    return {name:(nameInput?nameInput.value:ins[0].value)||'',qty:(qtyInput?qtyInput.value:ins[1].value)||'1',unit:(unitSel?unitSel.value:'Box')};
+  }).filter(i=>i&&i.name.trim());
 }
 function saveChallan() {
   const client=document.getElementById('ch-client').value.trim();
@@ -2207,6 +2459,647 @@ function renderAccOrders() {
   }).join('')}</tbody>`;
 }
 
+
+// ═══════════════════════════════════════════════════════════
+// BRAND & SIZE MANAGEMENT
+// ═══════════════════════════════════════════════════════════
+const DEFAULT_BRANDS = ['Kajaria','Nitco','RAK','Johnson','Asian Granito','Orient Bell','Somany','Simpolo','Grafite','Sunhearrt','Lavish','PGVT','Nexion'];
+const DEFAULT_SIZES = [
+  {size:'300×300 mm',thick:'7 mm',coverage:10.5},
+  {size:'300×600 mm',thick:'8 mm',coverage:10.5},
+  {size:'600×600 mm',thick:'9 mm',coverage:7.75},
+  {size:'600×1200 mm',thick:'9 mm',coverage:15.5},
+  {size:'800×800 mm',thick:'10 mm',coverage:13.5},
+  {size:'800×1600 mm',thick:'10 mm',coverage:27.0},
+  {size:'1200×1200 mm',thick:'11 mm',coverage:31.0},
+  {size:'1200×2400 mm',thick:'12 mm',coverage:62.0},
+  {size:'200×1200 mm',thick:'8 mm',coverage:6.5},
+  {size:'100×300 mm',thick:'7 mm',coverage:3.2},
+];
+
+function getBrands() {
+  if (!db.brands || !db.brands.length) db.brands = DEFAULT_BRANDS.slice();
+  return db.brands;
+}
+function getSizes() {
+  if (!db.tileSizes || !db.tileSizes.length) db.tileSizes = DEFAULT_SIZES.slice();
+  return db.tileSizes;
+}
+
+function refreshBrandDatalist() {
+  const dl = document.getElementById('brand-datalist'); if(!dl) return;
+  dl.innerHTML = getBrands().map(b=>`<option value="${b}">`).join('');
+}
+function refreshSizeDatalist() {
+  const dl = document.getElementById('size-datalist'); if(!dl) return;
+  dl.innerHTML = getSizes().map(s=>`<option value="${s.size}">`).join('');
+}
+
+function openManageBrands() {
+  renderBrandsList(); openModal('modal-brands');
+}
+function renderBrandsList() {
+  const el = document.getElementById('brands-list'); if(!el) return;
+  el.innerHTML = getBrands().map((b,i)=>`
+    <span style="display:inline-flex;align-items:center;gap:4px;background:var(--cream2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:12px;">
+      ${b} <button onclick="removeBrand(${i})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:13px;line-height:1;padding:0 0 0 3px;">×</button>
+    </span>`).join('');
+}
+function addBrand() {
+  const v = document.getElementById('new-brand-input').value.trim(); if(!v) return;
+  if (!db.brands) db.brands = getBrands();
+  if (!db.brands.includes(v)) { db.brands.push(v); save(); }
+  document.getElementById('new-brand-input').value='';
+  renderBrandsList(); refreshBrandDatalist(); toast('Brand added ✓');
+}
+function removeBrand(i) {
+  if (!db.brands) db.brands = getBrands();
+  db.brands.splice(i,1); save(); renderBrandsList(); refreshBrandDatalist();
+}
+
+function openManageSizes() {
+  renderSizesTable(); refreshCalcSizes(); openModal('modal-sizes');
+}
+function renderSizesTable() {
+  const tbody = document.getElementById('sizes-table-body'); if(!tbody) return;
+  tbody.innerHTML = getSizes().map((s,i)=>`<tr>
+    <td>${s.size}</td><td>${s.thick||'—'}</td>
+    <td class="mono">${s.coverage||'—'} sqft/box</td>
+    <td><button class="btn btn-sm btn-danger" onclick="removeSizeEntry(${i})">✕</button></td>
+  </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--text-light);">No sizes added.</td></tr>';
+}
+function addSizeEntry() {
+  const size=document.getElementById('ns-size').value.trim();
+  const thick=document.getElementById('ns-thick').value.trim();
+  const coverage=parseFloat(document.getElementById('ns-cov').value)||0;
+  if (!size) { toast('Enter a size','⚠'); return; }
+  if (!db.tileSizes) db.tileSizes = getSizes();
+  db.tileSizes.push({size,thick,coverage}); save();
+  ['ns-size','ns-thick','ns-cov'].forEach(id=>document.getElementById(id).value='');
+  renderSizesTable(); refreshSizeDatalist(); refreshCalcSizes(); toast('Size added ✓');
+}
+function removeSizeEntry(i) {
+  if (!db.tileSizes) db.tileSizes = getSizes();
+  db.tileSizes.splice(i,1); save(); renderSizesTable(); refreshSizeDatalist(); refreshCalcSizes();
+}
+function getCoverageHint(sizeStr) {
+  if (!sizeStr) return '';
+  // Check covEntries first (brand-specific)
+  const ce = getCovEntries ? getCovEntries() : [];
+  const ceMatch = ce.find(e=>e.size.toLowerCase().replace(/\s/g,'')===sizeStr.toLowerCase().replace(/\s/g,''));
+  if (ceMatch) return ceMatch.sqft+' sqft/box';
+  // Fallback to sizes table
+  const s = getSizes().find(x=>x.size.toLowerCase().replace(/\s/g,'')===sizeStr.toLowerCase().replace(/\s/g,''));
+  if (!s||!s.coverage) return '';
+  return s.coverage+' sqft/box';
+}
+function onTileSizeInput(val) {
+  // When size is entered in tile selection form, show coverage hint if available
+  const hint = getCoverageHint(val);
+  // no-op — coverage hint shows in quote table automatically
+}
+
+// ═══════════════════════════════════════════════════════════
+// COVERAGE CALCULATOR
+// ═══════════════════════════════════════════════════════════
+// COVERAGE CALCULATOR — Brand + Size specific
+// ═══════════════════════════════════════════════════════════
+function getCovEntries() { return db.covEntries || []; }
+
+function openCalculator() {
+  renderCovEntries();
+  openModal('modal-calculator');
+}
+
+function renderCovEntries() {
+  const tbody = document.getElementById('cov-entries-body'); if(!tbody) return;
+  const entries = getCovEntries();
+  if (!entries.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:16px;color:var(--text-light);">No entries yet. Add brand + size coverage below.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = entries.map((e,i) => `<tr>
+    <td style="font-weight:500;">${e.brand||'—'}</td>
+    <td>${e.size||'—'}</td>
+    <td style="color:var(--text-light);">${e.thick||'—'}</td>
+    <td class="mono" style="color:var(--green);font-weight:600;">${e.sqft} sqft/box</td>
+    <td><button class="btn btn-sm btn-danger" onclick="removeCovEntry(${i})">✕</button></td>
+  </tr>`).join('');
+}
+
+function addCovEntry() {
+  const brand = document.getElementById('cov-brand').value.trim();
+  const size  = document.getElementById('cov-size').value.trim();
+  const thick = document.getElementById('cov-thick').value.trim();
+  const sqft  = parseFloat(document.getElementById('cov-sqft').value);
+  if (!size || !sqft) { toast('Size and coverage are required','⚠'); return; }
+  if (!db.covEntries) db.covEntries = [];
+  // Update existing entry if brand+size+thick match
+  const existing = db.covEntries.findIndex(e =>
+    e.size.toLowerCase().replace(/\s/g,'') === size.toLowerCase().replace(/\s/g,'') &&
+    (e.brand||'').toLowerCase() === (brand||'').toLowerCase() &&
+    (e.thick||'').toLowerCase() === (thick||'').toLowerCase()
+  );
+  if (existing >= 0) {
+    db.covEntries[existing].sqft = sqft;
+    toast('Coverage entry updated ✓');
+  } else {
+    db.covEntries.push({brand, size, thick, sqft});
+    toast('Coverage entry added ✓');
+  }
+  save();
+  ['cov-brand','cov-size','cov-thick','cov-sqft'].forEach(id => document.getElementById(id).value='');
+  renderCovEntries();
+}
+
+function removeCovEntry(i) {
+  db.covEntries.splice(i,1); save(); renderCovEntries(); toast('Entry removed');
+}
+
+function updateLookup() {
+  const brand = (document.getElementById('lk-brand')?.value||'').trim().toLowerCase();
+  const size  = (document.getElementById('lk-size')?.value||'').trim().toLowerCase().replace(/\s/g,'');
+  const res   = document.getElementById('lk-result');
+  const inner = document.getElementById('lk-result-inner');
+  if (!brand && !size) { res.style.display='none'; return; }
+  const entries = getCovEntries();
+  const matches = entries.filter(e => {
+    const bMatch = !brand || (e.brand||'').toLowerCase().includes(brand);
+    const sMatch = !size  || e.size.toLowerCase().replace(/\s/g,'').includes(size);
+    return bMatch && sMatch;
+  });
+  res.style.display = 'block';
+  if (!matches.length) {
+    inner.innerHTML = '<span style="color:var(--text-light);font-size:12px;">No matching entry found.</span>';
+    return;
+  }
+  inner.innerHTML = matches.map(e =>
+    `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+      <div>
+        <span style="color:var(--gold);font-weight:600;">${e.brand||'(any brand)'}</span>
+        <span style="color:var(--text-light);margin:0 6px;">·</span>
+        <span style="color:var(--cream);">${e.size}</span>
+        ${e.thick ? `<span style="color:var(--mid);font-size:11px;margin-left:6px;">${e.thick}</span>` : ''}
+      </div>
+      <div style="font-size:18px;font-family:'Cormorant Garamond',serif;color:var(--gold);">${e.sqft} sqft/box</div>
+    </div>`
+  ).join('');
+}
+
+// getCoverageForTile: used in quotation to auto-show coverage
+function getCoverageForTile(brand, sizeStr) {
+  const entries = getCovEntries();
+  if (!entries.length) return getCoverageHint(sizeStr); // fallback to old size-only lookup
+  const s = sizeStr.toLowerCase().replace(/\s/g,'');
+  const b = (brand||'').toLowerCase();
+  // Try brand+size match first
+  let match = entries.find(e =>
+    e.size.toLowerCase().replace(/\s/g,'') === s &&
+    (e.brand||'').toLowerCase() === b
+  );
+  // Fallback: size-only match
+  if (!match) match = entries.find(e => e.size.toLowerCase().replace(/\s/g,'') === s);
+  return match ? match.sqft + ' sqft/box' : getCoverageHint(sizeStr);
+}
+
+function refreshCalcSizes() {} // kept for compatibility
+function updateCalc() {}
+function renderAllSizesRef() {}
+
+// ═══════════════════════════════════════════════════════════
+// VENDOR MANAGEMENT
+// ═══════════════════════════════════════════════════════════
+function getVendors() { return db.vendors||[]; }
+
+function openManageVendors() {
+  renderVendorsList();
+  switchVendorTab('list');
+  openModal('modal-vendors');
+}
+
+function switchVendorTab(tab) {
+  const listEl = document.getElementById('vt-list');
+  const addEl  = document.getElementById('vt-add');
+  const listBtn = document.getElementById('vt-list-btn');
+  const addBtn  = document.getElementById('vt-add-btn');
+  if (!listEl) return;
+  if (tab === 'list') {
+    listEl.style.display='block'; addEl.style.display='none';
+    listBtn.style.background='var(--gold)'; listBtn.style.color='var(--dark)'; listBtn.style.fontWeight='600';
+    addBtn.style.background='var(--cream2)'; addBtn.style.color='var(--text-light)'; addBtn.style.fontWeight='400';
+    renderVendorsList();
+  } else {
+    listEl.style.display='none'; addEl.style.display='block';
+    addBtn.style.background='var(--gold)'; addBtn.style.color='var(--dark)'; addBtn.style.fontWeight='600';
+    listBtn.style.background='var(--cream2)'; listBtn.style.color='var(--text-light)'; listBtn.style.fontWeight='400';
+  }
+}
+
+function renderVendorsList() {
+  const el = document.getElementById('vendors-list'); if(!el) return;
+  const emptyEl = document.getElementById('vt-empty');
+  const vs = getVendors();
+  if (!vs.length) {
+    el.innerHTML='';
+    if (emptyEl) emptyEl.style.display='block';
+    return;
+  }
+  if (emptyEl) emptyEl.style.display='none';
+  el.innerHTML = vs.map((v,i) => `
+    <div style="border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px;margin-bottom:8px;background:var(--cream);transition:box-shadow 0.15s;" onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='none'">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+        <div style="flex:1;">
+          <div style="font-weight:600;font-size:14px;color:var(--text);margin-bottom:3px;">${v.name}</div>
+          <div style="font-size:12px;color:var(--text-light);display:flex;flex-wrap:wrap;gap:10px;margin-bottom:${v.notes?'5px':'0'};">
+            ${v.contact?`<span>👤 ${v.contact}</span>`:''}
+            ${v.wa?`<span>📱 ${v.wa}</span>`:''}
+            ${v.email?`<span>📧 ${v.email}</span>`:''}
+          </div>
+          ${v.notes?`<div style="font-size:11px;color:var(--mid);font-style:italic;margin-top:4px;padding:5px 8px;background:var(--cream2);border-radius:4px;border-left:2px solid var(--gold);">${v.notes}</div>`:''}
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button class="btn btn-sm btn-outline" onclick="editVendor(${i})" title="Edit">✏️</button>
+          <button class="btn btn-sm btn-danger" onclick="removeVendor(${i})" title="Delete">✕</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function editVendor(i) {
+  const v = getVendors()[i]; if(!v) return;
+  document.getElementById('nv-edit-idx').value = i;
+  document.getElementById('nv-name').value    = v.name||'';
+  document.getElementById('nv-contact').value = v.contact||'';
+  document.getElementById('nv-wa').value      = v.wa||'';
+  document.getElementById('nv-email').value   = v.email||'';
+  document.getElementById('nv-notes').value   = v.notes||'';
+  const titleEl = document.getElementById('vt-add-title');
+  const saveBtn = document.getElementById('nv-save-btn');
+  const cancelBtn = document.getElementById('nv-cancel-btn');
+  if (titleEl) titleEl.textContent = 'Edit Vendor: ' + v.name;
+  if (saveBtn) saveBtn.textContent = '✓ Save Changes';
+  if (cancelBtn) cancelBtn.style.display='inline-flex';
+  switchVendorTab('add');
+}
+
+function cancelVendorEdit() {
+  document.getElementById('nv-edit-idx').value='';
+  ['nv-name','nv-contact','nv-wa','nv-email','nv-notes'].forEach(id=>document.getElementById(id).value='');
+  const titleEl = document.getElementById('vt-add-title');
+  const saveBtn = document.getElementById('nv-save-btn');
+  const cancelBtn = document.getElementById('nv-cancel-btn');
+  if (titleEl) titleEl.textContent='Add New Vendor';
+  if (saveBtn) saveBtn.textContent='+ Add Vendor';
+  if (cancelBtn) cancelBtn.style.display='none';
+  switchVendorTab('list');
+}
+
+function saveVendor() {
+  const name = document.getElementById('nv-name').value.trim();
+  if (!name) { toast('Vendor name required','⚠'); return; }
+  const data = {
+    name,
+    contact: document.getElementById('nv-contact').value.trim(),
+    wa:      document.getElementById('nv-wa').value.trim(),
+    email:   document.getElementById('nv-email').value.trim(),
+    notes:   document.getElementById('nv-notes').value.trim()
+  };
+  if (!db.vendors) db.vendors=[];
+  const editIdx = document.getElementById('nv-edit-idx').value;
+  if (editIdx !== '') {
+    db.vendors[parseInt(editIdx)] = data;
+    toast('Vendor updated ✓');
+  } else {
+    db.vendors.push(data);
+    toast('Vendor added ✓');
+  }
+  save();
+  cancelVendorEdit();
+}
+
+function addVendor() { saveVendor(); } // alias for backward compat
+
+function removeVendor(i) {
+  const v = getVendors()[i];
+  if (!confirm('Delete vendor "' + (v?.name||'this vendor') + '"?')) return;
+  db.vendors.splice(i,1); save(); renderVendorsList(); toast('Vendor removed');
+}
+
+// ═══════════════════════════════════════════════════════════
+// VENDOR DISPATCH POPUP & ORDER MESSAGING
+// ═══════════════════════════════════════════════════════════
+let _vpTimer=null;
+function showVendorPopup(order) {
+  if (!order) return;
+  // Remove old popup
+  const old=document.getElementById('vendor-popup'); if(old) old.remove();
+  const pop=document.createElement('div'); pop.id='vendor-popup';
+  pop.innerHTML=`
+    <div class="vp-title">📦 Send Order to Vendor</div>
+    <div class="vp-sub">Order <b>${order.id}</b> · ${order.client} · auto-dismiss in <span id="vp-countdown">12</span>s</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-sm" style="background:#25D366;color:white;border-color:#25D366;" onclick="openVendorDispatch('${order.id}','whatsapp')">📱 WhatsApp</button>
+      <button class="btn btn-sm" style="background:#d44638;color:white;border-color:#d44638;" onclick="openVendorDispatch('${order.id}','gmail')">📧 Gmail</button>
+      <button class="btn btn-sm btn-outline" onclick="document.getElementById('vendor-popup').remove()">Later</button>
+    </div>`;
+  document.body.appendChild(pop);
+  let t=12;
+  _vpTimer=setInterval(()=>{ t--; const el=document.getElementById('vp-countdown'); if(el)el.textContent=t; if(t<=0){clearInterval(_vpTimer);const p=document.getElementById('vendor-popup');if(p)p.remove();}},1000);
+}
+
+function buildOrderMessage(order) {
+  const prods = order.selectedProducts || (()=>{
+    const cl=db.clients.find(c=>c.id===order.clientId);
+    return cl?(cl.quoteRows||[]):[];
+  })();
+  let msg = `*ORDER DETAILS — Casa De Aurum*
+`;
+  msg += `━━━━━━━━━━━━━━━━━━━━
+`;
+  msg += `📋 Order ID: ${order.id}
+`;
+  msg += `👤 Client: ${order.client}
+`;
+  if(order.phone) msg+=`📞 Phone: ${order.phone}
+`;
+  if(order.address) msg+=`📍 Address: ${order.address}
+`;
+  if(order.qno) msg+=`📄 Quote Ref: ${order.qno}
+`;
+  msg+=`📅 Date: ${fmtDate(order.date)}
+`;
+  msg+=`━━━━━━━━━━━━━━━━━━━━
+`;
+  msg+=`*PRODUCTS REQUIRED:*
+`;
+  if(prods.length){
+    prods.forEach((p,i)=>{
+      msg+=`${i+1}. ${p.name||'—'}`;
+      if(p.size) msg+=` | Size: ${p.size}`;
+      if(p.qty) msg+=` | Qty: ${p.qty} ${p.qtyType||'box'}`;
+      msg+=`
+`;
+    });
+  } else { msg+=`(See attached quotation)
+`; }
+  msg+=`━━━━━━━━━━━━━━━━━━━━
+`;
+  msg+=`From: Casa De Aurum, Bhopal`;
+  return msg;
+}
+
+function openVendorDispatch(orderId, channel) {
+  const order=db.orders.find(o=>o.id===orderId); if(!order) return;
+  const pop=document.getElementById('vendor-popup'); if(pop) pop.remove();
+  clearInterval(_vpTimer);
+  // Populate vendor dropdown
+  const vsel=document.getElementById('vd-vendor');
+  vsel.innerHTML='<option value="">-- Select Vendor --</option>'+getVendors().map((v,i)=>`<option value="${i}">${v.name}</option>`).join('');
+  document.getElementById('vd-channel').value=channel||'whatsapp';
+  document.getElementById('vd-order-summary').innerHTML=`<b>${order.id}</b> · ${order.client} · ${order.address||''} · ${fmtDate(order.date)}`;
+  document.getElementById('vd-message').value=buildOrderMessage(order);
+  document.getElementById('vd-vendor-info').innerHTML='<span style="color:var(--text-light);font-size:12px;">Select a vendor above to see their contact details and order instructions.</span>';
+  window._currentDispatchOrder=order;
+  openModal('modal-vendor-dispatch');
+}
+function onVendorSelect() {
+  const idx=document.getElementById('vd-vendor').value;
+  const vs=getVendors();
+  if(idx===''||!vs[idx]){document.getElementById('vd-vendor-info').innerHTML='<span style="color:var(--text-light);font-size:12px;">Select a vendor to see details.</span>';return;}
+  const v=vs[idx];
+  document.getElementById('vd-vendor-info').innerHTML=`
+    <div style="font-size:12px;"><b>${v.name}</b> ${v.contact?'· '+v.contact:''}</div>
+    ${v.wa?`<div style="font-size:11px;color:var(--text-light);">📱 WhatsApp: ${v.wa}</div>`:''}
+    ${v.email?`<div style="font-size:11px;color:var(--text-light);">📧 Email: ${v.email}</div>`:''}
+    ${v.notes?`<div style="font-size:11px;color:var(--mid);margin-top:6px;padding:6px;background:var(--cream2);border-radius:4px;">📋 ${v.notes}</div>`:''}`;
+}
+function sendViaWhatsApp() {
+  const idx=document.getElementById('vd-vendor').value;
+  const vs=getVendors();
+  const msg=encodeURIComponent(document.getElementById('vd-message').value);
+  let url;
+  if(idx!==''&&vs[idx]&&vs[idx].wa) {
+    url=`https://wa.me/${vs[idx].wa.replace(/\D/g,'')}?text=${msg}`;
+  } else {
+    url=`https://wa.me/?text=${msg}`;
+  }
+  window.open(url,'_blank');
+  closeModal('modal-vendor-dispatch');
+}
+function sendViaGmail() {
+  const idx=document.getElementById('vd-vendor').value;
+  const vs=getVendors();
+  const msg=document.getElementById('vd-message').value;
+  const order=window._currentDispatchOrder||{};
+  let to='';
+  if(idx!==''&&vs[idx]&&vs[idx].email) to=vs[idx].email;
+  const subject=encodeURIComponent(`Order ${order.id||''} — ${order.client||''} — Casa De Aurum`);
+  const body=encodeURIComponent(msg);
+  window.open(`mailto:${to}?subject=${subject}&body=${body}`,'_blank');
+  closeModal('modal-vendor-dispatch');
+}
+function sendOrderEmail(orderId) {
+  openVendorDispatch(orderId,'gmail');
+}
+
+// ═══════════════════════════════════════════════════════════
+// AI IMAGE SEARCH — uses Claude AI to find tile images
+// ═══════════════════════════════════════════════════════════
+
+async function doTextSearch() {
+  const q = document.getElementById('ai-search-query').value.trim();
+  if (!q) { toast('Enter a tile name to search','⚠'); return; }
+  showAILoading(true);
+  try {
+    // Ask Claude to generate likely image URLs for this tile
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:800,
+        messages:[{role:'user',content:`You are helping a tile showroom in India find product images. 
+The user is searching for: "${q}"
+Generate a JSON array of 8 direct image URLs from major tile brand websites, manufacturer catalogues, or tile retail sites that would likely show this tile or very similar tiles.
+Focus on: kajaria.com, nitco.com, somanyceramics.com, orientbell.com, asian-granito.com, johnson-tiles.com, rakceramics.com, buildemart.com, tileszone.in, tilesbay.com, royalceramics.com, and similar Indian/global tile sites.
+Reply ONLY with a valid JSON array of objects like:
+[{"url":"https://...direct-image-url...jpg","label":"Brand - Product Name","source":"kajaria.com"},...]
+No explanation. Just the JSON array. URLs must end in .jpg/.png/.webp and be direct image links.`}]
+      })
+    });
+    const data = await resp.json();
+    const text = data.content?.[0]?.text || '[]';
+    let items = [];
+    try {
+      const clean = text.replace(/```json|```/g,'').trim();
+      const parsed = JSON.parse(clean);
+      items = parsed.map(item => ({
+        link: item.url,
+        displayLink: item.source || '',
+        title: item.label || q
+      }));
+    } catch(e) { items = []; }
+    if (!items.length) {
+      toast('No results — try a more specific name','⚠');
+    } else {
+      renderSearchResults(items, q);
+    }
+  } catch(e) { toast('Search failed — check connection','⚠'); }
+  showAILoading(false);
+}
+
+async function doPhotoSearch(input) {
+  const file = input.files[0]; if (!file) return;
+  showAILoading(true);
+  try {
+    // Convert image to base64 for Claude Vision
+    const base64 = await fileToBase64(file);
+    // Ask Claude to identify the tile
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:300,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:file.type,data:base64.split(',')[1]}},
+          {type:'text',text:'This is a tile/ceramic image. Identify: 1) The tile brand/company if visible 2) The tile name or pattern 3) Size if visible 4) Surface finish (matt/glossy/satin). Reply in JSON only: {"brand":"","name":"","size":"","finish":"","searchQuery":"best search query to find this tile online"}'}
+        ]}]
+      })
+    });
+    const data = await resp.json();
+    const text = data.content?.[0]?.text||'';
+    let parsed;
+    try { parsed = JSON.parse(text.replace(/```json|```/g,'')); } catch(e) { parsed = {searchQuery:text.slice(0,60)}; }
+    if (parsed.searchQuery || parsed.name) {
+      const sq = parsed.searchQuery || [parsed.brand,parsed.name,parsed.size,'tile'].filter(Boolean).join(' ');
+      document.getElementById('ai-search-query').value = sq;
+      toast('AI identified: '+(parsed.brand?parsed.brand+' — ':'')+parsed.name,'✓');
+      await doTextSearch();
+    } else {
+      toast('Could not identify tile — try typing the name','⚠');
+    }
+  } catch(e) { toast('AI search failed','⚠'); }
+  showAILoading(false);
+  input.value='';
+}
+
+function fileToBase64(file) {
+  return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(file);});
+}
+
+function showAILoading(show) {
+  document.getElementById('ai-search-loading').style.display=show?'block':'none';
+  document.getElementById('ai-search-results').style.display=show?'none':document.getElementById('ai-results-grid').children.length?'block':'none';
+}
+
+let _selectedAIImg = null;
+function renderSearchResults(items, query) {
+  _selectedAIImg=null;
+  const res=document.getElementById('ai-search-results');
+  const grid=document.getElementById('ai-results-grid');
+  const label=document.getElementById('ai-results-label');
+  if(!items.length){grid.innerHTML='<div style="color:var(--text-light);font-size:12px;padding:8px;">No images found. Try a different search term.</div>';res.style.display='block';return;}
+  label.textContent=`${items.length} results for "${query}" — click to select`;
+  grid.innerHTML=items.map((item,i)=>`
+    <div class="ai-img-result" id="air-${i}" onclick="selectAIResult(${i},'${item.link.replace(/'/g,'\'')}')" title="${item.title||''}">
+      <img src="${item.link}" onerror="this.closest('.ai-img-result').style.display='none'" loading="lazy"/>
+      <div class="ai-img-result-label">${(item.displayLink||'').replace('www.','')}</div>
+    </div>`).join('');
+  res.style.display='block';
+  // Add attach button
+  if (!document.getElementById('ai-attach-btn')) {
+    const btn=document.createElement('button');
+    btn.id='ai-attach-btn'; btn.className='btn btn-primary btn-sm';
+    btn.style.cssText='margin-top:8px;display:none;';
+    btn.textContent='✓ Use This Image';
+    btn.onclick=attachSelectedAIImage;
+    res.appendChild(btn);
+  }
+}
+function selectAIResult(i, url) {
+  document.querySelectorAll('.ai-img-result').forEach(el=>el.classList.remove('selected'));
+  document.getElementById('air-'+i)?.classList.add('selected');
+  _selectedAIImg=url;
+  const btn=document.getElementById('ai-attach-btn'); if(btn) btn.style.display='inline-flex';
+}
+async function attachSelectedAIImage() {
+  if (!_selectedAIImg) { toast('Select an image first','⚠'); return; }
+  try {
+    const res=await fetch(_selectedAIImg);
+    const blob=await res.blob();
+    const base64=await fileToBase64(blob);
+    pendingTileImageData=base64;
+    const p=document.getElementById('tile-img-preview');
+    p.src=base64; p.style.display='block';
+    document.getElementById('drop-zone-hint').textContent='✓ Image attached from search';
+    document.getElementById('drop-zone-hint').style.color='var(--green)';
+    // Also try to autofill name from search query
+    const q=document.getElementById('ai-search-query').value;
+    if (q && !document.getElementById('new-tile-name').value) document.getElementById('new-tile-name').value=q;
+    document.getElementById('ai-search-results').style.display='none';
+    toast('Image attached ✓');
+  } catch(e) {
+    // CORS blocked — set as URL reference instead
+    pendingTileImageData=_selectedAIImg;
+    const p=document.getElementById('tile-img-preview');
+    p.src=_selectedAIImg; p.style.display='block';
+    document.getElementById('drop-zone-hint').textContent='✓ Image linked from search';
+    document.getElementById('ai-search-results').style.display='none';
+    toast('Image linked ✓');
+  }
+}
+
+// Also support paste/drag into AI search area
+document.addEventListener('paste',e=>{
+  for(const item of (e.clipboardData||e.originalEvent?.clipboardData||{items:[]}).items){
+    if(item.type.startsWith('image/')){
+      const file=item.getAsFile();
+      if(file){ e.preventDefault(); doPhotoSearchFromFile(file); break; }
+    }
+  }
+},{passive:false});
+
+async function doPhotoSearchFromFile(file) {
+  // same as doPhotoSearch but takes file directly
+  showAILoading(true);
+  try {
+    const base64=await fileToBase64(file);
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:file.type||'image/jpeg',data:base64.split(',')[1]}},{type:'text',text:'Identify this tile. Reply JSON only: {"brand":"","name":"","size":"","finish":"","searchQuery":"search query to find this tile online"}'}]}]})});
+    const data=await resp.json();
+    const text=data.content?.[0]?.text||'';
+    let parsed; try{parsed=JSON.parse(text.replace(/```json|```/g,''));}catch(e){parsed={searchQuery:text.slice(0,60)};}
+    if(parsed.searchQuery||parsed.name){
+      const sq=parsed.searchQuery||[parsed.brand,parsed.name,parsed.size,'tile'].filter(Boolean).join(' ');
+      document.getElementById('ai-search-query').value=sq;
+      toast('AI identified: '+(parsed.brand?parsed.brand+' ':'')+parsed.name,'✓');
+      await doTextSearch();
+    }
+  } catch(e){toast('AI search failed','⚠');}
+  showAILoading(false);
+}
+
+// ═══════════════════════════════════════════════════════════
+// QUOTE ROW IMAGE MANAGEMENT
+// ═══════════════════════════════════════════════════════════
+function changeRowImage(i) { document.getElementById('row-img-'+i)?.click(); }
+function removeRowImage(i) { quoteRows[i].image=null; saveQuoteRows(); renderQuoteRows(); }
+function applyRowImage(i, input) {
+  const f=input.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{quoteRows[i].image=e.target.result;saveQuoteRows();renderQuoteRows();toast('Image updated ✓');};
+  r.readAsDataURL(f);
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT PATCH — refresh datalists on startup
+// ═══════════════════════════════════════════════════════════
+const _origInitApp = initApp;
+function initApp() {
+  _origInitApp();
+  setTimeout(()=>{refreshBrandDatalist();refreshSizeDatalist();},200);
+}
+
 // ═══════════════════════════════════════════════════════════
 // UTILS
 // ═══════════════════════════════════════════════════════════
@@ -2220,88 +3113,10 @@ function toast(msg, icon='✓') {
 }
 
 // ═══════════════════════════════════════════════════════════
-// GOOGLE AUTH — ALTERNATIVE: If no Client ID, try GIS popup
+// USERNAME / PASSWORD AUTH
 // ═══════════════════════════════════════════════════════════
-// Since we can't embed a real OAuth client ID without server config,
-// we provide a fallback that uses the email-verified popup approach
-// with a message about setting up properly.
 
-// Check if Google GSI loaded
-window.addEventListener('load', () => {
-  // If Google accounts not available (no internet), go offline
-  setTimeout(() => {
-    if (!window.google) {
-      // No internet or blocked — load from localStorage directly
-      document.getElementById('auth-screen').innerHTML = `
-        <div class="brand">Casa De Aurum</div>
-        <div class="tagline">Tiles &amp; Designer Surfaces · Bhopal</div>
-        <div class="auth-box">
-          <div class="auth-title">Offline / Local Mode</div>
-          <div class="auth-sub">Google sign-in is unavailable (no internet or script blocked).<br>Proceeding with locally saved data.</div>
-          <button class="g-signin-btn" style="background:#C9A96E;color:#1A1714;font-weight:700;" onclick="onAuthSuccessOffline()">Continue with Local Data</button>
-          <div class="auth-note">Note: Data will only be saved on this device.<br>For cross-device sync, ensure internet access.</div>
-        </div>`;
-    }
-  }, 3000);
-});
-
-// ── IMPORTANT: For full Google Drive sync ──────────────────────────────────────
-// You need to:
-// 1. Go to https://console.cloud.google.com
-// 2. Create a project → Enable "Google Drive API" + "Google Identity"
-// 3. Create OAuth 2.0 credentials (Web App) with your domain as authorized origin
-// 4. Replace getClientId() return value with your actual Client ID
-// 5. In Drive API scope, use 'drive.appdata' for private app storage
-//
-// ALTERNATIVELY — simpler approach below: use Google account sign-in for identity
-// verification only, and use localStorage + manual export/import for data sync.
-// ──────────────────────────────────────────────────────────────────────────────
-
-// Override: simpler auth flow for immediate use
-// This verifies the Google account email address without needing Drive setup
-function handleGoogleSignIn() {
-  if (!window.google || !window.google.accounts) {
-    toast('Google not loaded — using offline mode','⚠');
-    onAuthSuccessOffline();
-    return;
-  }
-  // Use ID token approach for email verification
-  const client = google.accounts.id.initialize({
-    client_id: '1042226939195-9u1s83u6jkl1s9qh9o0qmkr1b3f9r6e3.apps.googleusercontent.com',
-    callback: handleCredentialResponse,
-    auto_select: false,
-  });
-  google.accounts.id.prompt((notification) => {
-    if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-      // Prompt not shown — fallback
-      onAuthSuccessOffline();
-    }
-  });
-}
-
-function handleCredentialResponse(response) {
-  // Decode JWT to get email
-  try {
-    const payload = JSON.parse(atob(response.credential.split('.')[1]));
-    if (payload.email !== AUTHORIZED_EMAIL) {
-      showAuthErr('⚠ Access denied. Only ' + AUTHORIZED_EMAIL + ' is allowed.');
-      return;
-    }
-    gUser = payload;
-    document.getElementById('auth-screen').style.display = 'none';
-    document.getElementById('app').classList.remove('hidden');
-    document.getElementById('user-name').textContent = payload.name || payload.email;
-    if (payload.picture) { const av=document.getElementById('user-avatar'); av.src=payload.picture; av.style.display='block'; }
-    setSyncStatus('ok', 'Signed in · local storage sync');
-    initApp();
-    // Note: Without Drive API token, data saved locally only
-    // Full Drive sync requires OAuth token setup (see instructions above)
-  } catch(e) {
-    onAuthSuccessOffline();
-  }
-}
-
-// Export/Import for manual cross-device sync (backup until Drive is configured)
+// Export/Import for manual cross-device sync
 function exportData() {
   const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
   const a=document.createElement('a');
@@ -2330,6 +3145,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (bar) {
     const btns = document.createElement('div');
     btns.style.cssText = 'display:flex;gap:6px;margin-left:12px;';
-    btns.innerHTML = `
-      <button onclick="exportData()" style="background:none;border:1px solid #4A4440;color:#7A706A;padding:2px 8px;border-radius:4px;font-size:10px;cursor:pointer;font-family:Outfit,sans-serif;" title="Export all data as JSON">⬇ Export</button>
-      <button onclick="importD
+    btns.innerHTML =
+      '<button onclick="exportData()" style="background:none;border:1px solid #4A4440;color:#7A706A;padding:2px 8px;border-radius:4px;font-size:10px;cursor:pointer;font-family:Outfit,sans-serif;" title="Export all data as JSON">⬇ Export</button>' +
+      '<button onclick="importData()" style="background:none;border:1px solid #4A4440;color:#7A706A;padding:2px 8px;border-radius:4px;font-size:10px;cursor:pointer;font-family:Outfit,sans-serif;" title="Import data from JSON">⬆ Import</button>';
+    bar.appendChild(btns);
+  }
+});
+</script>
+</body>
+</html>
