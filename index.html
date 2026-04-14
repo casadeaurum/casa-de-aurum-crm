@@ -321,39 +321,22 @@ textarea{resize:vertical;min-height:60px;}
           <!-- Add Tile Selection -->
           <div class="card">
             <div class="card-title">Add Tile Selection</div>
-            <!-- AI Image Search bar -->
-            <div style="background:linear-gradient(135deg,#1A1714,#252220);border:1px solid var(--gold-dim);border-radius:var(--radius);padding:12px 14px;margin-bottom:12px;">
-              <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;font-weight:600;">🔍 AI Tile Image Search</div>
-              <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
-                <input type="text" id="ai-search-query" placeholder="Type tile name e.g. Carrara White Matt 600x1200…" style="flex:1;min-width:180px;background:var(--dark3);border:1px solid var(--mid);color:var(--cream);"/>
-                <button class="btn btn-primary btn-sm" onclick="doTextSearch()">🔍 Search Images</button>
-                <button class="btn btn-outline btn-sm" onclick="document.getElementById('ai-photo-upload').click()">📷 Search by Photo</button>
-                <input type="file" id="ai-photo-upload" accept="image/*" style="display:none;" onchange="doPhotoSearch(this)"/>
-              </div>
-              <div style="font-size:10px;color:var(--text-light);margin-bottom:6px;">Or drag & drop / paste a rough photo below for AI visual match</div>
-              <div id="ai-search-results" style="display:none;margin-top:10px;">
-                <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text-light);margin-bottom:8px;" id="ai-results-label">Results</div>
-                <div id="ai-results-grid" style="display:flex;flex-wrap:wrap;gap:8px;max-height:260px;overflow-y:auto;"></div>
-              </div>
-              <div id="ai-search-loading" style="display:none;color:var(--gold);font-size:12px;padding:8px 0;">⏳ Searching…</div>
-            </div>
+
             <div class="form-row">
               <div class="form-group"><label>Tile / Product Name</label><input type="text" id="new-tile-name" placeholder="e.g. Carrara White Matt 600×1200"/></div>
               <div class="form-group">
                 <label>Company / Brand <button onclick="openManageBrands()" style="background:none;border:none;color:var(--gold);font-size:10px;cursor:pointer;padding:0 0 0 6px;">+ Manage</button></label>
-                <div style="display:flex;gap:6px;">
-                  <input type="text" id="new-tile-brand" placeholder="Type or select brand…" list="brand-datalist" style="flex:1;"/>
-                  <datalist id="brand-datalist"></datalist>
-                </div>
+                <select id="new-tile-brand" onchange="onTileBrandSelect(this.value)">
+                  <option value="">— Choose Brand —</option>
+                </select>
               </div>
             </div>
             <div class="form-row">
               <div class="form-group">
                 <label>Size <button onclick="openManageSizes()" style="background:none;border:none;color:var(--gold);font-size:10px;cursor:pointer;padding:0 0 0 6px;">+ Manage</button></label>
-                <div style="display:flex;gap:6px;">
-                  <input type="text" id="new-tile-size" placeholder="Select or type size…" list="size-datalist" style="flex:1;" oninput="onTileSizeInput(this.value)"/>
-                  <datalist id="size-datalist"></datalist>
-                </div>
+                <select id="new-tile-size" onchange="onTileSizeInput(this.value)">
+                  <option value="">— Choose Size —</option>
+                </select>
               </div>
               <div class="form-group"><label>MRP per Box (₹)</label><input type="number" id="new-tile-mrp" placeholder="0"/></div>
               <div class="form-group"><label>Room / Area</label>
@@ -462,6 +445,80 @@ textarea{resize:vertical;min-height:60px;}
             <div><div class="section-title">Presentation Preview</div><div class="section-sub" id="ppt-client-sub">Room-wise tile slides</div></div>
             <button class="btn btn-green btn-sm" onclick="exportPPT()">⬇ Export PPT</button>
           </div>
+
+          <!-- PPT Theme Editor -->
+          <div class="card" style="margin-bottom:14px;">
+            <div class="card-title" style="cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:center;" onclick="togglePPTThemePanel()">
+              🎨 PPT Theme &amp; Format Settings <span id="ppt-theme-toggle-icon" style="font-size:11px;color:var(--text-light);">▼ expand</span>
+            </div>
+            <div id="ppt-theme-panel" style="display:none;margin-top:10px;">
+              <div style="font-size:11px;color:var(--text-light);margin-bottom:12px;">Customize the background, colours, branding, and layout of your exported presentation. Changes apply on next export.</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Background Style</label>
+                  <select id="ppt-bg-style" onchange="onPPTThemeChange()">
+                    <option value="dark">Dark (Default — Black/Charcoal)</option>
+                    <option value="light">Light (White / Cream)</option>
+                    <option value="custom">Custom Colour</option>
+                  </select>
+                </div>
+                <div class="form-group" id="ppt-custom-bg-wrap" style="display:none;">
+                  <label>Custom Background Colour</label>
+                  <input type="color" id="ppt-custom-bg" value="#1A1714" oninput="onPPTThemeChange()" style="width:100%;height:36px;padding:2px 4px;cursor:pointer;"/>
+                </div>
+                <div class="form-group">
+                  <label>Accent / Gold Colour</label>
+                  <input type="color" id="ppt-accent-color" value="#C9A96E" oninput="onPPTThemeChange()" style="width:100%;height:36px;padding:2px 4px;cursor:pointer;"/>
+                </div>
+                <div class="form-group">
+                  <label>Text Colour</label>
+                  <input type="color" id="ppt-text-color" value="#F5F0E8" oninput="onPPTThemeChange()" style="width:100%;height:36px;padding:2px 4px;cursor:pointer;"/>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Brand Name on Slides</label>
+                  <input type="text" id="ppt-brand-name" value="Casa De Aurum" oninput="onPPTThemeChange()" placeholder="Your brand name"/>
+                </div>
+                <div class="form-group">
+                  <label>Tagline</label>
+                  <input type="text" id="ppt-tagline" value="Tiles &amp; Designer Surfaces · Bhopal" oninput="onPPTThemeChange()" placeholder="Tagline shown in footer"/>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Slide Layout</label>
+                  <select id="ppt-layout" onchange="onPPTThemeChange()">
+                    <option value="wide">Widescreen 16:9 (Default)</option>
+                    <option value="standard">Standard 4:3</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Card Style</label>
+                  <select id="ppt-card-style" onchange="onPPTThemeChange()">
+                    <option value="bordered">Bordered Cards (Default)</option>
+                    <option value="minimal">Minimal — Images Only</option>
+                    <option value="rounded">Rounded with Shadow</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Show Prices on Slides</label>
+                  <select id="ppt-show-price" onchange="onPPTThemeChange()">
+                    <option value="yes">Yes — Show MRP/Price</option>
+                    <option value="no">No — Hide Prices</option>
+                  </select>
+                </div>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:4px;align-items:center;flex-wrap:wrap;">
+                <div id="ppt-theme-preview" style="display:flex;gap:8px;align-items:center;">
+                  <span style="font-size:11px;color:var(--text-light);">Preview:</span>
+                  <div id="ppt-preview-swatch" style="width:80px;height:36px;border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;letter-spacing:1px;background:#1A1714;color:#C9A96E;font-weight:700;transition:all 0.3s;">CASA DE AURUM</div>
+                </div>
+                <button class="btn btn-sm btn-outline" onclick="resetPPTTheme()">↺ Reset to Default</button>
+              </div>
+            </div>
+          </div>
+
           <div id="ppt-slides-preview"></div>
         </div>
       </div>
@@ -1524,6 +1581,77 @@ ${tcItems?`<div class="tc-wrap"><div class="tc-title">Terms &amp; Conditions</di
 }
 
 // ═══════════════════════════════════════════════════════════
+// PPT THEME PANEL
+// ═══════════════════════════════════════════════════════════
+function togglePPTThemePanel() {
+  const panel = document.getElementById('ppt-theme-panel');
+  const icon  = document.getElementById('ppt-theme-toggle-icon');
+  if (!panel) return;
+  const open = panel.style.display === 'block';
+  panel.style.display = open ? 'none' : 'block';
+  icon.textContent = open ? '▼ expand' : '▲ collapse';
+}
+function onPPTThemeChange() {
+  const bgStyle = document.getElementById('ppt-bg-style')?.value || 'dark';
+  const customWrap = document.getElementById('ppt-custom-bg-wrap');
+  if (customWrap) customWrap.style.display = bgStyle === 'custom' ? '' : 'none';
+  const accent = (document.getElementById('ppt-accent-color')?.value || '#C9A96E').replace('#','');
+  const textCol = (document.getElementById('ppt-text-color')?.value || '#F5F0E8').replace('#','');
+  const brandName = document.getElementById('ppt-brand-name')?.value || 'Casa De Aurum';
+  let bgHex = '1A1714';
+  if (bgStyle === 'light') bgHex = 'FDFAF4';
+  else if (bgStyle === 'custom') bgHex = (document.getElementById('ppt-custom-bg')?.value || '#1A1714').replace('#','');
+  const swatch = document.getElementById('ppt-preview-swatch');
+  if (swatch) {
+    swatch.style.background = '#' + bgHex;
+    swatch.style.color = '#' + accent;
+    swatch.textContent = (brandName || 'PREVIEW').toUpperCase().slice(0,14);
+  }
+}
+function resetPPTTheme() {
+  const el = id => document.getElementById(id);
+  if (el('ppt-bg-style'))      el('ppt-bg-style').value      = 'dark';
+  if (el('ppt-accent-color'))  el('ppt-accent-color').value  = '#C9A96E';
+  if (el('ppt-text-color'))    el('ppt-text-color').value    = '#F5F0E8';
+  if (el('ppt-brand-name'))    el('ppt-brand-name').value    = 'Casa De Aurum';
+  if (el('ppt-tagline'))       el('ppt-tagline').value       = 'Tiles & Designer Surfaces · Bhopal';
+  if (el('ppt-layout'))        el('ppt-layout').value        = 'wide';
+  if (el('ppt-card-style'))    el('ppt-card-style').value    = 'bordered';
+  if (el('ppt-show-price'))    el('ppt-show-price').value    = 'yes';
+  onPPTThemeChange();
+  toast('Theme reset to default ✓');
+}
+function getPPTTheme() {
+  const get = id => document.getElementById(id);
+  const bgStyle   = get('ppt-bg-style')?.value     || 'dark';
+  const accent    = (get('ppt-accent-color')?.value || '#C9A96E').replace('#','');
+  const textCol   = (get('ppt-text-color')?.value   || '#F5F0E8').replace('#','');
+  const brandName = get('ppt-brand-name')?.value    || 'Casa De Aurum';
+  const tagline   = get('ppt-tagline')?.value       || 'Tiles & Designer Surfaces · Bhopal';
+  const layout    = get('ppt-layout')?.value        || 'wide';
+  const cardStyle = get('ppt-card-style')?.value    || 'bordered';
+  const showPrice = (get('ppt-show-price')?.value   || 'yes') === 'yes';
+  // Resolve background colour
+  let bgHex = '1A1714';
+  if (bgStyle === 'light') bgHex = 'FDFAF4';
+  else if (bgStyle === 'custom') bgHex = (get('ppt-custom-bg')?.value || '#1A1714').replace('#','');
+  // Derive secondary/dark shades
+  const isLight = bgStyle === 'light';
+  const DARK    = bgHex;
+  const DARK2   = isLight ? 'F0EBE0' : '252220';
+  const DARK3   = isLight ? 'E0D8CC' : '302C29';
+  const GOLD    = accent;
+  const GOLD2   = accent; // use same accent as secondary
+  const GOLD_PALE = isLight ? accent : 'E8D5B0';
+  const CREAM   = textCol;
+  const MID     = isLight ? '6A5C4A' : '4A4440';
+  const SW      = layout === 'standard' ? 10 : 13.33;
+  const SH      = layout === 'standard' ? 7.5 : 7.5;
+  const LAYOUT  = layout === 'standard' ? 'LAYOUT_4x3' : 'LAYOUT_WIDE';
+  return { DARK, DARK2, DARK3, GOLD, GOLD2, GOLD_PALE, CREAM, MID, SW, SH, LAYOUT, brandName, tagline, cardStyle, showPrice, isLight };
+}
+
+// ═══════════════════════════════════════════════════════════
 // PPT PREVIEW & EXPORT
 // ═══════════════════════════════════════════════════════════
 function renderPPTPreview() {
@@ -1546,13 +1674,15 @@ async function exportPPT() {
   if (window._pptxLoadFailed || !window.PptxGenJS) { exportSlideImages(c); return; }
   try {
     const pres = new PptxGenJS();
-    const BRAND='Casa De Aurum', TAGLINE='Tiles & Designer Surfaces · Bhopal';
-    const DARK='1A1714', DARK2='252220', DARK3='302C29';
-    const GOLD='C9A96E', GOLD2='B8914A', GOLD_PALE='E8D5B0';
-    const CREAM='F5F0E8', MID='4A4440', LIGHT='EDE6D8';
-    const SW=13.33, SH=7.5; // 16:9 widescreen
+    // ── Read theme settings ──
+    const T = getPPTTheme();
+    const BRAND = T.brandName, TAGLINE = T.tagline;
+    const DARK = T.DARK, DARK2 = T.DARK2, DARK3 = T.DARK3;
+    const GOLD = T.GOLD, GOLD2 = T.GOLD2, GOLD_PALE = T.GOLD_PALE;
+    const CREAM = T.CREAM, MID = T.MID;
+    const SW = T.SW, SH = T.SH;
 
-    pres.layout = 'LAYOUT_WIDE';
+    pres.layout = T.LAYOUT;
 
     // ── TITLE SLIDE ──────────────────────────────────────
     const title = pres.addSlide();
@@ -1656,13 +1786,17 @@ async function exportPPT() {
           // Card background
           slide.addShape(pres.ShapeType.rect,{
             x:cardX, y:CONTENT_Y, w:cardW, h:cardH,
-            fill:{color:DARK2}, line:{color:MID, w:0.75}
+            fill:{color: T.cardStyle==='minimal' ? DARK : DARK2},
+            line: T.cardStyle==='minimal' ? {color:DARK,w:0} : {color:MID, w:0.75},
+            ...(T.cardStyle==='rounded' ? {rectRadius:0.12} : {})
           });
-          // Gold top accent on card
-          slide.addShape(pres.ShapeType.rect,{
-            x:cardX, y:CONTENT_Y, w:cardW, h:0.05,
-            fill:{color:GOLD}
-          });
+          // Gold top accent on card (skip in minimal)
+          if (T.cardStyle !== 'minimal') {
+            slide.addShape(pres.ShapeType.rect,{
+              x:cardX, y:CONTENT_Y, w:cardW, h:0.05,
+              fill:{color:GOLD}
+            });
+          }
 
           // Image area — fills most of card, fixed aspect ratio
           const IMG_PADDING = 0.12;
@@ -1731,7 +1865,7 @@ async function exportPPT() {
           }
 
           // Price
-          if (t.mrp) {
+          if (t.mrp && T.showPrice) {
             slide.addText('₹'+t.mrp+'/box', {
               x:cardX+0.1, y:CONTENT_Y+cardH-0.28, w:cardW-0.2, h:0.26,
               fontSize:nc<=2?11:9, color:GOLD, align:'center', bold:true
@@ -2487,12 +2621,17 @@ function getSizes() {
 }
 
 function refreshBrandDatalist() {
-  const dl = document.getElementById('brand-datalist'); if(!dl) return;
-  dl.innerHTML = getBrands().map(b=>`<option value="${b}">`).join('');
+  const sel = document.getElementById('new-tile-brand'); if(!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— Choose Brand —</option>' + getBrands().map(b=>`<option value="${b}"${b===cur?' selected':''}>${b}</option>`).join('');
 }
 function refreshSizeDatalist() {
-  const dl = document.getElementById('size-datalist'); if(!dl) return;
-  dl.innerHTML = getSizes().map(s=>`<option value="${s.size}">`).join('');
+  const sel = document.getElementById('new-tile-size'); if(!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— Choose Size —</option>' + getSizes().map(s=>`<option value="${s.size}"${s.size===cur?' selected':''}>${s.size}</option>`).join('');
+}
+function onTileBrandSelect(val) {
+  // no-op — brand selected from dropdown
 }
 
 function openManageBrands() {
